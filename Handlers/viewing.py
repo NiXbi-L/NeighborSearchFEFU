@@ -65,6 +65,7 @@ async def viewing(message: Message, state: FSMContext):
                                          f'gender = "{user[1]}" AND building = "{data[0][0]}" AND id >= {user[2]} AND userid != {user[0]}')
     if len(questionnaires) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
+        await DBfunc.UPDATE('user', f'qid = qid + 1', f'{user[0]}')
     else:
         await message.answer('Переходим в режим просмотра анкет', reply_markup=await Viewing())
         await state.set_state(View.view)
@@ -131,6 +132,7 @@ async def viewing(message: Message, state: FSMContext):
 
     if len(questionnaires) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
+        await DBfunc.UPDATE('user', f'qid = qid + 1', f'{user[0]}')
     else:
         await message.answer('Переходим в режим просмотра анкет', reply_markup=await Viewing())
         await state.set_state(View.view)
