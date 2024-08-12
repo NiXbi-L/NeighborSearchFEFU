@@ -1,7 +1,7 @@
 class BotSetings:
-    token = '7201412640:AAHeQebBE9iRSkhM7naJxSrmmUPS5ZLxqHo'
-    admin = [7147747620, 1660528172]
-    manager = 7147747620
+    token = ''
+    admin = [0]
+    manager = 0
     Debug = True
 
 class DBconf:
