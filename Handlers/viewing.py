@@ -38,19 +38,22 @@ async def viewing(message: Message, state: FSMContext):
             ID = questionnaires[0]
             AboutMe = questionnaires[1]
             name = questionnaires[3]
-            media = []
-            if str(questionnaires[2]) != 'None':
-                ph = questionnaires[2][0:-1].split('|')
-                for i in range(len(ph)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=ph[i],
-                            caption=f'{name}\n{AboutMe}'))
-                    else:
-                        media.append(InputMediaPhoto(
-                            media=ph[i]))
-                await bot.send_media_group(chat_id=message.from_user.id, media=media)
-            else:
+            try:
+                media = []
+                if str(questionnaires[2]) != 'None':
+                    ph = questionnaires[2][0:-1].split('|')
+                    for i in range(len(ph)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=ph[i],
+                                caption=f'{name}\n{AboutMe}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                else:
+                    await message.answer(f'{name}\n{AboutMe}')
+            except:
                 await message.answer(f'{name}\n{AboutMe}')
 
             await DBfunc.UPDATE('user', f'qid = {ID}', f'{user[0]}')
@@ -72,19 +75,22 @@ async def viewing(message: Message, state: FSMContext):
         ID = questionnaires[0]
         AboutMe = questionnaires[1]
         name = questionnaires[3]
-        media = []
-        if str(questionnaires[2]) != 'None':
-            ph = questionnaires[2][0:-1].split('|')
-            for i in range(len(ph)):
-                if i == 0:
-                    media.append(InputMediaPhoto(
-                        media=ph[i],
-                        caption=f'{name}\n{AboutMe}'))
-                else:
-                    media.append(InputMediaPhoto(
-                        media=ph[i]))
-            await bot.send_media_group(chat_id=message.from_user.id, media=media)
-        else:
+        try:
+            media = []
+            if str(questionnaires[2]) != 'None':
+                ph = questionnaires[2][0:-1].split('|')
+                for i in range(len(ph)):
+                    if i == 0:
+                        media.append(InputMediaPhoto(
+                            media=ph[i],
+                            caption=f'{name}\n{AboutMe}'))
+                    else:
+                        media.append(InputMediaPhoto(
+                            media=ph[i]))
+                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+            else:
+                await message.answer(f'{name}\n{AboutMe}')
+        except:
             await message.answer(f'{name}\n{AboutMe}')
 
         await DBfunc.UPDATE('user', f'qid = {ID}', f'{user[0]}')
@@ -108,20 +114,25 @@ async def viewing(message: Message, state: FSMContext):
     myquestionnaires = myquestionnaires[0]
     AboutMe = myquestionnaires[0]
     name = myquestionnaires[2]
-    media = []
-    if str(myquestionnaires[1]) != 'None':
-        ph = myquestionnaires[1][0:-1].split('|')
-        for i in range(len(ph)):
-            if i == 0:
-                media.append(InputMediaPhoto(
-                    media=ph[i],
-                    caption=f'{name}\n{AboutMe}'))
-            else:
-                media.append(InputMediaPhoto(
-                    media=ph[i]))
-        await bot.send_media_group(chat_id=sendto, media=media)
-    else:
+    try:
+        media = []
+        if str(myquestionnaires[1]) != 'None':
+            ph = myquestionnaires[1][0:-1].split('|')
+            for i in range(len(ph)):
+                if i == 0:
+                    media.append(InputMediaPhoto(
+                        media=ph[i],
+                        caption=f'{name}\n{AboutMe}'))
+                else:
+                    media.append(InputMediaPhoto(
+                        media=ph[i]))
+            await bot.send_media_group(chat_id=sendto, media=media)
+        else:
+            await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
+    except:
         await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
+
+
     if str(message.from_user.username) == 'None':
         await bot.send_message(chat_id=sendto,
                                text=f'Ты можешь написать [{name}](tg://openmessage?user_id={message.from_user.id})',
@@ -140,19 +151,22 @@ async def viewing(message: Message, state: FSMContext):
         ID = questionnaires[0]
         AboutMe = questionnaires[1]
         name = questionnaires[3]
-        media = []
-        if str(questionnaires[2]) != 'None':
-            ph = questionnaires[2][0:-1].split('|')
-            for i in range(len(ph)):
-                if i == 0:
-                    media.append(InputMediaPhoto(
-                        media=ph[i],
-                        caption=f'{name}\n{AboutMe}'))
-                else:
-                    media.append(InputMediaPhoto(
-                        media=ph[i]))
-            await bot.send_media_group(chat_id=message.from_user.id, media=media)
-        else:
+        try:
+            media = []
+            if str(questionnaires[2]) != 'None':
+                ph = questionnaires[2][0:-1].split('|')
+                for i in range(len(ph)):
+                    if i == 0:
+                        media.append(InputMediaPhoto(
+                            media=ph[i],
+                            caption=f'{name}\n{AboutMe}'))
+                    else:
+                        media.append(InputMediaPhoto(
+                            media=ph[i]))
+                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+            else:
+                await message.answer(f'{name}\n{AboutMe}')
+        except:
             await message.answer(f'{name}\n{AboutMe}')
 
         await DBfunc.UPDATE('user', f'qid = {ID}', f'{user[0]}')

@@ -51,34 +51,54 @@ async def add_photos(message: Message):
 
 @router.callback_query(lambda query: query.data == 'Photo')
 async def add_photos(call: CallbackQuery, state: FSMContext):
-    print(data[call.from_user.id])
     if len(data[call.from_user.id]) < 4:  # Если длинна списка меньше 4 то фотографии небыли добавлены
         await call.message.answer('Вы не отправили не одной фотографии либо они еще не дошли')
     else:
-        await bot.delete_message(chat_id=call.from_user.id,
-                                 message_id=call.message.message_id)  # Удаляем это сообщение
-        await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
-        media = []
-        photos = data[call.from_user.id][3::]
-        for i in range(len(photos)):
-            if i == 0:
-                media.append(InputMediaPhoto(
-                    media=photos[i],
-                    caption=f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}'))
-            else:
-                media.append(InputMediaPhoto(
-                    media=photos[i]))
-        await bot.send_media_group(chat_id=call.from_user.id, media=media)
-        await state.set_state(add.Okk)
+        dt1 = data[call.from_user.id][1][2].replace('"', '')
+        dt2 = data[call.from_user.id][2].replace('"', '')
+        if len(dt1) == 0 or len(dt2) == 0:
+            await call.message.answer('Введены не корректные даные. Попробуй еще раз')
+            await call.message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
+            await state.set_state(add.buildings)
+            data.pop(call.from_user.id)
+        else:
+            try:
+                await bot.delete_message(chat_id=call.from_user.id,
+                                         message_id=call.message.message_id)  # Удаляем это сообщение
+                await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+                media = []
+                photos = data[call.from_user.id][3::]
+                for i in range(len(photos)):
+                    if i == 0:
+                        media.append(InputMediaPhoto(
+                            media=photos[i],
+                            caption=f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}'))
+                    else:
+                        media.append(InputMediaPhoto(
+                            media=photos[i]))
+                await bot.send_media_group(chat_id=call.from_user.id, media=media)
+                await state.set_state(add.Okk)
+            except:
+                await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+                await call.message.answer(f'{dt1}\n{dt2}')
+                await state.set_state(add.Okk)
 
 
 @router.callback_query(lambda query: query.data == 'NoPhoto')
 async def add_photos(call: CallbackQuery, state: FSMContext):
     await bot.delete_message(chat_id=call.from_user.id,
                              message_id=call.message.message_id)  # Удаляем это сообщение
-    await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
-    await call.message.answer(f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}')
-    await state.set_state(add.Okk)
+    dt1 = data[call.from_user.id][1].replace('"', '')
+    dt2 = data[call.from_user.id][2].replace('"', '')
+    if len(dt1) == 0 or len(dt2) == 0:
+        await call.message.answer('Введены не корректные даные. Попробуй еще раз')
+        await call.message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
+        await state.set_state(add.buildings)
+        data.pop(call.from_user.id)
+    else:
+        await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+        await call.message.answer(f'{dt1}\n{dt2}')
+        await state.set_state(add.Okk)
 
 
 @router.message(add.Okk, lambda message: message.text == 'Круто, оставляем!')
@@ -92,8 +112,10 @@ async def Okk(message: Message, state: FSMContext):
             ID = await DBfunc.SELECT('id', 'questionnaire', f'userid = {user[0]}')
             ID = ID[0][0]
             await DBfunc.DELETE('questionnaire', f'{ID}')
+        dt2 = dt[2].replace('"','')
+        dt1 = dt[1].replace('"','')
         await DBfunc.INSERT('questionnaire', 'userid, building, AboutMe, gender, name',
-                            f'{user[0]},"{dt[0]}","{dt[2]}","{user[1]}","{dt[1]}"')
+                            f'{user[0]},"{dt[0]}","{dt2}","{user[1]}","{dt1}"')
         data.pop(message.from_user.id)
     else:
         ph = ''
@@ -153,17 +175,20 @@ async def Okk(message: Message, state: FSMContext):
         data = data[0]
         AboutMe = data[0]
         name = data[2]
-        media = []
-        if str(data[1]) != 'None':
-            ph = data[1][0:-1].split('|')
-            for i in range(len(ph)):
-                if i == 0:
-                    media.append(InputMediaPhoto(
-                        media=ph[i],
-                        caption=f'{name}\n{AboutMe}'))
-                else:
-                    media.append(InputMediaPhoto(
-                        media=ph[i]))
-            await bot.send_media_group(chat_id=message.from_user.id, media=media)
-        else:
+        try:
+            media = []
+            if str(data[1]) != 'None':
+                ph = data[1][0:-1].split('|')
+                for i in range(len(ph)):
+                    if i == 0:
+                        media.append(InputMediaPhoto(
+                            media=ph[i],
+                            caption=f'{name}\n{AboutMe}'))
+                    else:
+                        media.append(InputMediaPhoto(
+                            media=ph[i]))
+                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+            else:
+                await message.answer(f'{name}\n{AboutMe}')
+        except:
             await message.answer(f'{name}\n{AboutMe}')
