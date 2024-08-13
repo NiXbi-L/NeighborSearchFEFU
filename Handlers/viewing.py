@@ -67,7 +67,6 @@ async def viewing(message: Message, state: FSMContext):
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
         await DBfunc.UPDATE('user', f'qid = qid + 1', f'{user[0]}')
     else:
-        await message.answer('Переходим в режим просмотра анкет', reply_markup=await Viewing())
         await state.set_state(View.view)
         questionnaires = questionnaires[1]
         ID = questionnaires[0]
@@ -93,6 +92,8 @@ async def viewing(message: Message, state: FSMContext):
 
 @router.message(View.view, lambda message: message.text == '👍')
 async def viewing(message: Message, state: FSMContext):
+    await message.answer('Ваша анкета отправлена ожидайте ответа')
+
     user = await DBfunc.SELECT('id,gender,qid', 'user', f'tgid = {message.from_user.id}')
     user = user[0]
     data = await DBfunc.SELECT('building', 'questionnaire', f'userid = {user[0]}')
@@ -134,7 +135,6 @@ async def viewing(message: Message, state: FSMContext):
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
         await DBfunc.UPDATE('user', f'qid = qid + 1', f'{user[0]}')
     else:
-        await message.answer('Переходим в режим просмотра анкет', reply_markup=await Viewing())
         await state.set_state(View.view)
         questionnaires = questionnaires[1]
         ID = questionnaires[0]

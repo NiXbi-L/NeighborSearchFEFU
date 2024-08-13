@@ -33,10 +33,8 @@ async def setname(message: Message, state: FSMContext):
                                      message_id=sent_message.message_id)  # Удаляем это сообщение
             await state.set_state(add.buildings)
         else:
-            sent_message = await message.answer("Включаю клавиатуру",
-                                                reply_markup=ReplyKeyboardRemove())  # Сообщение для удаления клавиатуры
-            await bot.delete_message(chat_id=message.chat.id,
-                                     message_id=sent_message.message_id)  # Удаляем это сообщение
+            sent_message = await message.answer("Влючаю отображение меню",
+                                                reply_markup=await mainKeyboard())  # Сообщение для удаления клавиатуры
 
 
 @router.callback_query(reg.gender)

@@ -33,9 +33,15 @@ async def name(message: Message, state: FSMContext):
 
 @router.message(add.AboutMe)
 async def AboutMe(message: Message, state: FSMContext):
-    await message.answer('Если хочешь можешь прислать фотографии', reply_markup=await Photos_INLINE())
     data[message.from_user.id].append(message.text)
-    await state.set_state(add.photos)
+    if len(message.text) < 1024:
+        await message.answer('Если хочешь можешь прислать фотографии', reply_markup=await Photos_INLINE())
+        await state.set_state(add.photos)
+    else:
+        await message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+        await message.answer(f'{data[message.from_user.id][1]}\n{data[message.from_user.id][2]}')
+        await state.set_state(add.Okk)
+
 
 
 @router.message(add.photos)  # Запрос фотографий
