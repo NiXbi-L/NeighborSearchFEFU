@@ -1,12 +1,11 @@
 from aiogram import Router, Bot
-from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery, InputMediaPhoto
 
 from DB import DBfunc
 
-from Handlers.builders import Photos_INLINE, Ok, mainKeyboard, Buildings_INLINE
-from Handlers.States import add
+from Handlers.SerchBS.builders import Photos_INLINE, Ok, mainKeyboard, Buildings_INLINE, Und_INLINE
+from Handlers.SerchBS.States import add, Naighbor
 from config import BotSetings
 
 router = Router()  # Создаем объект роутер
@@ -15,18 +14,35 @@ bot = Bot(token=BotSetings.token)  # Создаем объект бот
 data = {}
 
 
+@router.callback_query(add.name, lambda call: call.data == 'Und')
+async def UND(call: CallbackQuery, state: FSMContext):
+    await bot.delete_message(chat_id=call.from_user.id,
+                             message_id=call.message.message_id)  # Удаляем это сообщение
+    await call.message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
+    await state.set_state(add.buildings)
+
+
+@router.callback_query(add.AboutMe, lambda call: call.data == 'Und')
+async def buildings(call: CallbackQuery, state: FSMContext):
+    data[call.from_user.id].pop(-1)
+    await bot.delete_message(chat_id=call.from_user.id,
+                             message_id=call.message.message_id)  # Удаляем это сообщение
+    await call.message.answer('Как тебя зовут', reply_markup=await Und_INLINE())
+    await state.set_state(add.name)
+
+
 @router.callback_query(add.buildings)
 async def buildings(call: CallbackQuery, state: FSMContext):
     await bot.delete_message(chat_id=call.from_user.id,
                              message_id=call.message.message_id)  # Удаляем это сообщение
-    await call.message.answer('Хорошо. Теперь мне нужно узнать как тебя зовут.')
+    await call.message.answer('Хорошо. Теперь мне нужно узнать как тебя зовут.', reply_markup=await Und_INLINE())
     data[call.from_user.id] = [call.data]
     await state.set_state(add.name)
 
 
 @router.message(add.name)
 async def name(message: Message, state: FSMContext):
-    await message.answer('Теперь напиши немного о себе')
+    await message.answer('Теперь напиши немного о себе', reply_markup=await Und_INLINE())
     data[message.from_user.id].append(message.text)
     await state.set_state(add.AboutMe)
 
@@ -43,13 +59,12 @@ async def AboutMe(message: Message, state: FSMContext):
         await state.set_state(add.Okk)
 
 
-
 @router.message(add.photos)  # Запрос фотографий
 async def add_photos(message: Message):
     data[message.from_user.id].append(message.photo[-1].file_id)
 
 
-@router.callback_query(lambda query: query.data == 'Photo')
+@router.callback_query(add.photos, lambda query: query.data == 'Photo')
 async def add_photos(call: CallbackQuery, state: FSMContext):
     if len(data[call.from_user.id]) < 4:  # Если длинна списка меньше 4 то фотографии небыли добавлены
         await call.message.answer('Вы не отправили не одной фотографии либо они еще не дошли')
@@ -84,7 +99,7 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
                 await state.set_state(add.Okk)
 
 
-@router.callback_query(lambda query: query.data == 'NoPhoto')
+@router.callback_query(add.photos, lambda query: query.data == 'NoPhoto')
 async def add_photos(call: CallbackQuery, state: FSMContext):
     await bot.delete_message(chat_id=call.from_user.id,
                              message_id=call.message.message_id)  # Удаляем это сообщение
@@ -106,14 +121,15 @@ async def Okk(message: Message, state: FSMContext):
     user = await DBfunc.SELECT('id,gender', 'user', f'tgid = {message.from_user.id}')
     user = user[0]
     await message.answer('Твоя анкета создана. Удачи в поисках соседа.', reply_markup=await mainKeyboard())
+    await state.set_state(Naighbor.Naighbor)
     dt = data[message.from_user.id]
     if len(dt) < 4:  # Если длинна списка меньше 4 то фотографии небыли добавлены
         if await DBfunc.IF('questionnaire', 'id', f'userid = {user[0]}'):  # Удаляем прошлую анкету если она имеется
             ID = await DBfunc.SELECT('id', 'questionnaire', f'userid = {user[0]}')
             ID = ID[0][0]
             await DBfunc.DELETE('questionnaire', f'{ID}')
-        dt2 = dt[2].replace('"','')
-        dt1 = dt[1].replace('"','')
+        dt2 = dt[2].replace('"', '')
+        dt1 = dt[1].replace('"', '')
         await DBfunc.INSERT('questionnaire', 'userid, building, AboutMe, gender, name',
                             f'{user[0]},"{dt[0]}","{dt2}","{user[1]}","{dt1}"')
         data.pop(message.from_user.id)
@@ -141,7 +157,7 @@ async def Okk(message: Message, state: FSMContext):
     data.pop(message.from_user.id)
 
 
-@router.message(lambda message: message.text == 'Заполнить анкету заново')
+@router.message(Naighbor.Naighbor, lambda message: message.text == 'Заполнить анкету заново')
 async def Okk(message: Message, state: FSMContext):
     await message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
     await state.set_state(add.buildings)
@@ -151,7 +167,7 @@ async def Okk(message: Message, state: FSMContext):
                              message_id=sent_message.message_id)  # Удаляем это сообщение
 
 
-@router.message(lambda message: message.text == 'Удалить анкету')
+@router.message(Naighbor.Naighbor, lambda message: message.text == 'Удалить анкету')
 async def Okk(message: Message, state: FSMContext):
     user = await DBfunc.SELECT('id,gender', 'user', f'tgid = {message.from_user.id}')
     user = user[0]
@@ -164,7 +180,7 @@ async def Okk(message: Message, state: FSMContext):
         await message.answer('Ваша анкета удалена')
 
 
-@router.message(lambda message: message.text == 'Моя анкета')
+@router.message(Naighbor.Naighbor, lambda message: message.text == 'Моя анкета')
 async def Okk(message: Message, state: FSMContext):
     user = await DBfunc.SELECT('id,gender', 'user', f'tgid = {message.from_user.id}')
     user = user[0]

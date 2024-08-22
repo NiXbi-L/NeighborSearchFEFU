@@ -16,9 +16,43 @@ async def mainKeyboard():
     ),
     builder.add(
         KeyboardButton(text='Удалить анкету'),
+    ),
+    builder.add(
+        KeyboardButton(text='К списку сервисов'),
     )
     builder.adjust(2)
     return builder.as_markup(resize_keyboard=True)
+
+
+async def mainKeyboard2():
+    builder = ReplyKeyboardBuilder()
+
+    builder.add(
+        KeyboardButton(text='Просмотр анкет'),
+    )
+    builder.adjust(2)
+    return builder.as_markup(resize_keyboard=True)
+
+async def ServiceKeyboard():
+    builder = ReplyKeyboardBuilder()
+
+    builder.add(
+        KeyboardButton(text='Поиск соседа'),
+    ),
+    builder.add(
+        KeyboardButton(text='Поиск друзей'),
+    ),
+    # builder.add(
+    #     KeyboardButton(text='Справочник'),
+    # ),
+    # builder.add(
+    #     KeyboardButton(text='Напоминания'),
+    # )
+    builder.adjust(2)
+    return builder.as_markup(resize_keyboard=True)
+
+
+
 
 async def Viewing():
     builder = ReplyKeyboardBuilder()
@@ -35,6 +69,7 @@ async def Viewing():
     builder.adjust(3)
     return builder.as_markup(resize_keyboard=True)
 
+
 async def Ok():
     builder = ReplyKeyboardBuilder()
 
@@ -47,6 +82,7 @@ async def Ok():
     builder.adjust(2)
     return builder.as_markup(resize_keyboard=True)
 
+
 async def YN():
     builder = ReplyKeyboardBuilder()
 
@@ -58,6 +94,8 @@ async def YN():
     )
     builder.adjust(2)
     return builder.as_markup(resize_keyboard=True)
+
+
 async def Go():
     builder = ReplyKeyboardBuilder()
 
@@ -68,15 +106,18 @@ async def Go():
     return builder.as_markup(resize_keyboard=True)
 
 
-
 async def Buildings_INLINE():
     builder = InlineKeyboardBuilder()
 
     builder.add(
         InlineKeyboardButton(
-                 text='Test',
-                 callback_data=f'Test'
-            ),
+            text='Test',
+            callback_data=f'Test'
+        ),
+        InlineKeyboardButton(
+            text='Назад',
+            callback_data=f'Und'
+        )
         # InlineKeyboardButton(
         #     text='K1.8',
         #     callback_data=f'K1.8'
@@ -170,6 +211,7 @@ async def Buildings_INLINE():
 
     return builder.as_markup()
 
+
 async def Photos_INLINE():
     builder = InlineKeyboardBuilder()
 
@@ -187,6 +229,7 @@ async def Photos_INLINE():
 
     return builder.as_markup()
 
+
 async def Gender_INLINE():
     builder = InlineKeyboardBuilder()
 
@@ -201,5 +244,58 @@ async def Gender_INLINE():
         ),
     )
     builder.adjust(3)
+
+    return builder.as_markup()
+
+
+async def Und_INLINE():
+    builder = InlineKeyboardBuilder()
+
+    builder.add(
+        InlineKeyboardButton(
+            text='Назад',
+            callback_data=f'Und'
+        )
+    )
+    builder.adjust(3)
+
+    return builder.as_markup()
+
+
+async def admKeyboard():
+    builder = ReplyKeyboardBuilder()
+
+    builder.add(
+        KeyboardButton(text='Сделать рассылку'),
+    ),
+    builder.add(
+        KeyboardButton(text='Выход'),
+    )
+    builder.adjust(2)
+    return builder.as_markup(resize_keyboard=True)
+
+
+async def Find_INLINE():
+    builder = InlineKeyboardBuilder()
+
+    builder.add(
+        InlineKeyboardButton(
+            text='Парня',
+            callback_data=f'Friend'
+        ),
+        InlineKeyboardButton(
+            text='Девушку',
+            callback_data=f'G_friend'
+        ),
+        InlineKeyboardButton(
+            text='Неважно',
+            callback_data=f'Pohui'
+        ),
+        InlineKeyboardButton(
+            text='Назад',
+            callback_data=f'Und'
+        )
+    )
+    builder.adjust(2)
 
     return builder.as_markup()

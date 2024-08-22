@@ -1,19 +1,18 @@
 from aiogram import Router, Bot
-from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery, InputMediaPhoto
+from aiogram.types import Message, ReplyKeyboardRemove, InputMediaPhoto
 
 from DB import DBfunc
 
-from Handlers.builders import Viewing, mainKeyboard, Buildings_INLINE
-from Handlers.States import View, add
+from Handlers.SerchBS.builders import Viewing, mainKeyboard, Buildings_INLINE
+from Handlers.SerchBS.States import View, add, Naighbor
 from config import BotSetings
 
 router = Router()  # Создаем объект роутер
 bot = Bot(token=BotSetings.token)  # Создаем объект бот
 
 
-@router.message(lambda message: message.text == 'Просмотр анкет')
+@router.message(Naighbor.Naighbor,lambda message: message.text == 'Просмотр анкет')
 async def viewing(message: Message, state: FSMContext):
     user = await DBfunc.SELECT('id,gender,qid', 'user', f'tgid = {message.from_user.id}')
     user = user[0]
@@ -69,6 +68,7 @@ async def viewing(message: Message, state: FSMContext):
     if len(questionnaires) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
         await DBfunc.UPDATE('user', f'qid = qid + 1', f'{user[0]}')
+        await state.set_state(Naighbor.Naighbor)
     else:
         await state.set_state(View.view)
         questionnaires = questionnaires[1]
@@ -145,6 +145,7 @@ async def viewing(message: Message, state: FSMContext):
     if len(questionnaires) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
         await DBfunc.UPDATE('user', f'qid = qid + 1', f'{user[0]}')
+        await state.set_state(Naighbor.Naighbor)
     else:
         await state.set_state(View.view)
         questionnaires = questionnaires[1]
