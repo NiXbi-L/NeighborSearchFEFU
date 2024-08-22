@@ -40,13 +40,15 @@ async def viewing(message: Message, state: FSMContext):
         elif user[1] == 'W':
             if data[0][0] == 'Pohui':
                 friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                              f'(Filter = "{data[0][0]}" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
+                                              f'(Filter = "{data[0][0]}" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
             elif data[0][0] == 'Friend':
                 friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                              f'gender = "M" AND (Filter = "Pohui" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
-            elif data[0][0] == 'G_Friend':
+                                              f'gender = "M" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
+            elif data[0][0] == 'G_friend':
                 friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                              f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
+                                              f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
+
+
         if len(friends) == 0:
             await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
         else:
@@ -90,20 +92,22 @@ async def viewing(message: Message, state: FSMContext):
         elif data[0][0] == 'Friend':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
                                           f'gender = "M" AND (Filter = "Pohui" OR Filter = "Friend") AND id >= {user[2]} AND userid != {user[0]}')
-        elif data[0][0] == 'G_Friend':
+        elif data[0][0] == 'G_friend':
+            print('Почему блять')
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
                                           f'gender = "W" AND (Filter = "Pohui" OR Filter = "Friend") AND id >= {user[2]} AND userid != {user[0]}')
     elif user[1] == 'W':
         if data[0][0] == 'Pohui':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                          f'(Filter = "{data[0][0]}" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
+                                          f'(Filter = "{data[0][0]}" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
         elif data[0][0] == 'Friend':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                          f'gender = "M" AND (Filter = "Pohui" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
-        elif data[0][0] == 'G_Friend':
+                                          f'gender = "M" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
+        elif data[0][0] == 'G_friend':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                          f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
-    if len(friends) < 2:
+                                        f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
+
+    if len(friends) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
         await DBfunc.UPDATE('user', f'qidf = qidf + 1', f'{user[0]}')
         await state.set_state(Friend.menu)
@@ -147,19 +151,19 @@ async def viewing(message: Message, state: FSMContext):
         elif data[0][0] == 'Friend':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
                                           f'gender = "M" AND (Filter = "Pohui" OR Filter = "Friend") AND id >= {user[2]} AND userid != {user[0]}')
-        elif data[0][0] == 'G_Friend':
+        elif data[0][0] == 'G_friend':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
                                           f'gender = "W" AND (Filter = "Pohui" OR Filter = "Friend") AND id >= {user[2]} AND userid != {user[0]}')
     elif user[1] == 'W':
         if data[0][0] == 'Pohui':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                          f'(Filter = "{data[0][0]}" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
+                                          f'(Filter = "{data[0][0]}" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
         elif data[0][0] == 'Friend':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                          f'gender = "M" AND (Filter = "Pohui" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
-        elif data[0][0] == 'G_Friend':
+                                          f'gender = "M" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
+        elif data[0][0] == 'G_friend':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                          f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_Friend") AND id >= {user[2]} AND userid != {user[0]}')
+                                          f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
 
     # Пытаемся отправить анкету
     try:
@@ -201,7 +205,9 @@ async def viewing(message: Message, state: FSMContext):
     except:  # Сообщаем пользователю о неудаче
         await message.answer('Ваша анкета не была доставлена, возможно пользователь заблокировал бота.')
 
-    if len(friends) < 2:
+    print(friends)
+
+    if len(friends) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
         await DBfunc.UPDATE('user', f'qidf = qidf + 1', f'{user[0]}')
         await state.set_state(Friend.menu)
