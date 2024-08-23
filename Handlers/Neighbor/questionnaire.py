@@ -18,7 +18,7 @@ data = {}
 async def UND(call: CallbackQuery, state: FSMContext):
     await bot.delete_message(chat_id=call.from_user.id,
                              message_id=call.message.message_id)  # Удаляем это сообщение
-    await call.message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
+    await call.message.answer('Выбери корпус в который заселяешься', reply_markup=await Buildings_INLINE())
     await state.set_state(add.buildings)
 
 
@@ -73,7 +73,7 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
         dt2 = data[call.from_user.id][2].replace('"', '')
         if len(dt1) == 0 or len(dt2) == 0:
             await call.message.answer('Введены не корректные даные. Попробуй еще раз')
-            await call.message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
+            await call.message.answer('Выбери корпус в который заселяешься', reply_markup=await Buildings_INLINE())
             await state.set_state(add.buildings)
             data.pop(call.from_user.id)
         else:
@@ -107,7 +107,7 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
     dt2 = data[call.from_user.id][2].replace('"', '')
     if len(dt1) == 0 or len(dt2) == 0:
         await call.message.answer('Введены не корректные даные. Попробуй еще раз')
-        await call.message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
+        await call.message.answer('Выбери корпус в который заселяешься', reply_markup=await Buildings_INLINE())
         await state.set_state(add.buildings)
         data.pop(call.from_user.id)
     else:
@@ -148,7 +148,7 @@ async def Okk(message: Message, state: FSMContext):
 
 @router.message(add.Okk, lambda message: message.text == 'Заполнить заново')
 async def Okk(message: Message, state: FSMContext):
-    await message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
+    await message.answer('Выбери корпус в который заселяешься', reply_markup=await Buildings_INLINE())
     await state.set_state(add.buildings)
     sent_message = await message.answer("Убираю клавиатуру",
                                         reply_markup=ReplyKeyboardRemove())  # Сообщение для удаления клавиатуры
@@ -159,7 +159,7 @@ async def Okk(message: Message, state: FSMContext):
 
 @router.message(Naighbor.Naighbor, lambda message: message.text == 'Заполнить анкету заново')
 async def Okk(message: Message, state: FSMContext):
-    await message.answer('Выбери корпус в котый заселяешься', reply_markup=await Buildings_INLINE())
+    await message.answer('Выбери корпус в который заселяешься', reply_markup=await Buildings_INLINE())
     await state.set_state(add.buildings)
     sent_message = await message.answer("Убираю клавиатуру",
                                         reply_markup=ReplyKeyboardRemove())  # Сообщение для удаления клавиатуры

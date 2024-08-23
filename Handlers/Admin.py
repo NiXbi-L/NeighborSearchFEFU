@@ -2,6 +2,7 @@ from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
+import asyncio
 
 from DB import DBfunc
 
@@ -14,6 +15,39 @@ bot = Bot(token=BotSetings.token)  # Создаем объект бот
 data = {}
 
 
+async def mailigMethod(users, usid): #Метод рассылки сообщений
+    Sended = 0
+    Blocked = 0
+    for i in users:
+        tgid = i[1]
+        try:
+            if len(data) == 1:
+                await bot.send_message(chat_id=tgid, text=f'{data[usid][0]}')
+                Sended += 1
+            else:
+                media = []
+                photos = data[usid][1::]
+                for i in range(len(photos)):
+                    if i == 0:
+                        media.append(InputMediaPhoto(
+                            media=photos[i],
+                            caption=f'{data[usid][0]}'))
+                    else:
+                        media.append(InputMediaPhoto(
+                            media=photos[i]))
+                await bot.send_media_group(chat_id=tgid, media=media)
+                Sended += 1
+        except:
+            Blocked += 1
+            await DBfunc.DELETEWHERE('questionnaire', f'userid = {i[0]}')
+            await DBfunc.DELETEWHERE('friend', f'userid = {i[0]}')
+            await DBfunc.DELETE('user', f'{i[0]}')
+    await bot.send_message(chat_id=usid, text=f'Отчет по рассылке:\n'
+                                              f'Дошло: {Sended}\n'
+                                              f'Не дошло: {Blocked}')
+    data.pop(usid)
+
+
 @router.message(Command('adm'), lambda message: message.from_user.id in BotSetings.admin)
 async def adm(message: Message, state: FSMContext):
     await state.set_state(admin.admMenu)
@@ -24,6 +58,7 @@ async def adm(message: Message, state: FSMContext):
 async def exit(message: Message, state: FSMContext):
     await message.answer('Возвращаю в главное меню.', reply_markup=await mainKeyboard())
     await state.clear()
+
 
 # Создание рассылки
 @router.message(admin.admMenu, lambda message: message.text == 'Сделать рассылку')
@@ -77,34 +112,10 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
 
 @router.message(admin.okk, lambda message: message.text == 'Круто, оставляем!')
 async def Okk(message: Message, state: FSMContext):
-    users = await DBfunc.SELECT('tgid', 'user', f'tgid != {message.from_user.id}')
-    Sended = 0
-    Blocked = 0
-    for i in users:
-        tgid = i[0]
-        try:
-            if len(data) == 1:
-                await bot.send_message(chat_id=tgid, text=f'{data[message.from_user.id][0]}')
-                Sended += 1
-            else:
-                media = []
-                photos = data[message.from_user.id][1::]
-                for i in range(len(photos)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=photos[i],
-                            caption=f'{data[message.from_user.id][0]}'))
-                    else:
-                        media.append(InputMediaPhoto(
-                            media=photos[i]))
-                await bot.send_media_group(chat_id=tgid, media=media)
-                Sended += 1
-        except:
-            Blocked += 1
-    await message.answer(f'Отчет по рассылке:\n'
-                         f'Дошло: {Sended}\n'
-                         f'Не дошло: {Blocked}', reply_markup=await admKeyboard())
-    data.pop(message.from_user.id)
+    users = await DBfunc.SELECT('id, tgid', 'user', f'tgid != {message.from_user.id}')
+    task = asyncio.create_task(mailigMethod(users, message.from_user.id))
+    await message.answer('Рассылка началась. Вам придет отчет как только все сообщения будут доставлены',
+                         reply_markup=await admKeyboard())
     await state.set_state(admin.admMenu)
 
 
@@ -113,4 +124,4 @@ async def N_Okk(message: Message, state: FSMContext):
     await message.answer('Введите текст рассылки')
     await state.set_state(admin.text)
 
-#Создание рассылки
+# Создание рассылки

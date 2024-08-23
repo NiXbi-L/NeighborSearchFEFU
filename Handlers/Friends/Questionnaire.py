@@ -13,12 +13,15 @@ bot = Bot(token=BotSetings.token)  # Создаем объект бот
 
 data = {}
 
+
 @router.callback_query(Friend.buildings, lambda query: query.data == 'Und')
 async def buildingsUND(call: CallbackQuery, state: FSMContext):
     await bot.delete_message(chat_id=call.from_user.id,
                              message_id=call.message.message_id)  # Удаляем это сообщение
     await call.message.answer('Возвращаю в меню', reply_markup=await mainKeyboard())
     await state.set_state(Friend.menu)
+
+
 @router.callback_query(Friend.name, lambda call: call.data == 'Und')
 async def UND(call: CallbackQuery, state: FSMContext):
     await bot.delete_message(chat_id=call.from_user.id,
@@ -126,6 +129,7 @@ async def Okk(message: Message, state: FSMContext):
     user = await DBfunc.SELECT('id,gender', 'user', f'tgid = {message.from_user.id}')
     user = user[0]
     await message.answer('Твоя анкета создана. Удачи в поисках.', reply_markup=await mainKeyboard())
+    await DBfunc.UPDATEWHERE('user', 'qidf = 0', f'tgid = {message.from_user.id}')
     await state.set_state(Friend.menu)
     dt = data[message.from_user.id]
     if len(dt) < 4:  # Если длинна списка меньше 4 то фотографии небыли добавлены

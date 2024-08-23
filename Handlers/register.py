@@ -6,7 +6,9 @@ from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from DB import DBfunc
 
 from Handlers.SerchBS.builders import ServiceKeyboard, Gender_INLINE, mainKeyboard2, mainKeyboard
+from Handlers.Note.Builders import NoteKeyboard
 from Handlers.SerchBS.States import add, reg, Naighbor, Friend
+from Handlers.Note.States import Note
 from config import BotSetings
 
 router = Router()  # Создаем объект роутер
@@ -46,6 +48,11 @@ async def NeighborSearch(message: Message, state: FSMContext):
 async def FriendSearch(message: Message, state: FSMContext):
     await state.set_state(Friend.menu)
     await message.answer('Переход к сервису поиска друзей', reply_markup=await mainKeyboard())
+
+@router.message(lambda mesage: mesage.text == 'Справочник')
+async def FriendSearch(message: Message, state: FSMContext):
+    await state.set_state(Note.menu)
+    await message.answer('Переход к сервису cправочник', reply_markup=await NoteKeyboard())
 
 
 @router.message(lambda mesage: mesage.text == 'К списку сервисов')

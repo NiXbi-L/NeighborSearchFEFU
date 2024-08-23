@@ -7,17 +7,9 @@ async def mainKeyboard():
 
     builder.add(
         KeyboardButton(text='Просмотр анкет'),
-    ),
-    builder.add(
         KeyboardButton(text='Заполнить анкету заново'),
-    ),
-    builder.add(
         KeyboardButton(text='Моя анкета'),
-    ),
-    builder.add(
         KeyboardButton(text='Удалить анкету'),
-    ),
-    builder.add(
         KeyboardButton(text='К списку сервисов'),
     )
     builder.adjust(2)
@@ -38,16 +30,10 @@ async def ServiceKeyboard():
 
     builder.add(
         KeyboardButton(text='Поиск соседа'),
-    ),
-    builder.add(
         KeyboardButton(text='Поиск друзей'),
-    ),
-    # builder.add(
-    #     KeyboardButton(text='Справочник'),
-    # ),
-    # builder.add(
-    #     KeyboardButton(text='Напоминания'),
-    # )
+        KeyboardButton(text='Справочник'),
+    #   KeyboardButton(text='Напоминания'),
+    )
     builder.adjust(2)
     return builder.as_markup(resize_keyboard=True)
 
@@ -59,11 +45,7 @@ async def Viewing():
 
     builder.add(
         KeyboardButton(text='👎'),
-    ),
-    builder.add(
         KeyboardButton(text='Меню'),
-    ),
-    builder.add(
         KeyboardButton(text='👍'),
     ),
     builder.adjust(3)
@@ -75,8 +57,6 @@ async def Ok():
 
     builder.add(
         KeyboardButton(text='Заполнить заново'),
-    ),
-    builder.add(
         KeyboardButton(text='Круто, оставляем!'),
     )
     builder.adjust(2)
@@ -88,8 +68,6 @@ async def YN():
 
     builder.add(
         KeyboardButton(text='Нет'),
-    ),
-    builder.add(
         KeyboardButton(text='Да'),
     )
     builder.adjust(2)
