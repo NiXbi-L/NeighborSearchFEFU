@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Авг 12 2024 г., 17:08
+-- Время создания: Авг 23 2024 г., 09:51
 -- Версия сервера: 10.3.22-MariaDB
 -- Версия PHP: 7.1.33
 
@@ -20,6 +20,22 @@ SET time_zone = "+00:00";
 --
 -- База данных: `neighborsearchfefu`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `friend`
+--
+
+CREATE TABLE `friend` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `userid` int(11) NOT NULL,
+  `AboutMe` varchar(4096) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `photos` varchar(4096) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gender` varchar(1) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Filter` varchar(9) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -48,12 +64,19 @@ CREATE TABLE `user` (
   `tgid` bigint(20) UNSIGNED ZEROFILL NOT NULL,
   `username` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gender` varchar(1) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `qid` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT 0000000000
+  `qid` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT 0000000000,
+  `qidf` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT 0000000000
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Индексы сохранённых таблиц
 --
+
+--
+-- Индексы таблицы `friend`
+--
+ALTER TABLE `friend`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Индексы таблицы `questionnaire`
@@ -71,6 +94,12 @@ ALTER TABLE `user`
 --
 -- AUTO_INCREMENT для сохранённых таблиц
 --
+
+--
+-- AUTO_INCREMENT для таблицы `friend`
+--
+ALTER TABLE `friend`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT для таблицы `questionnaire`
