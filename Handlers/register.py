@@ -25,7 +25,7 @@ async def setname(message: Message, state: FSMContext):
     else:
         await message.answer('Выберите сервис которым хотите воспользоваться', reply_markup=await ServiceKeyboard())
 
-
+@router.callback_query(reg.gender)
 async def gender(call: CallbackQuery, state: FSMContext):
     if str(call.from_user.username) != 'None':
         await DBfunc.INSERT('user', 'tgid,username,gender',

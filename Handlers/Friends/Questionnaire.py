@@ -7,6 +7,7 @@ from DB import DBfunc
 from Handlers.SerchBS.builders import Photos_INLINE, Ok, mainKeyboard, Find_INLINE, Und_INLINE
 from Handlers.SerchBS.States import Friend
 from config import BotSetings
+from Handlers.Friends.GPTmoderation import chek
 
 router = Router()  # Создаем объект роутер
 bot = Bot(token=BotSetings.token)  # Создаем объект бот
@@ -77,10 +78,16 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
     if len(data[call.from_user.id]) < 4:  # Если длинна списка меньше 4 то фотографии небыли добавлены
         await call.message.answer('Вы не отправили не одной фотографии либо они еще не дошли')
     else:
+        TF = await chek(data[call.from_user.id][2])
         dt1 = data[call.from_user.id][1][2].replace('"', '')
         dt2 = data[call.from_user.id][2].replace('"', '')
         if len(dt1) == 0 or len(dt2) == 0:
             await call.message.answer('Введены не корректные даные. Попробуй еще раз')
+            await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
+            await state.set_state(Friend.buildings)
+            data.pop(call.from_user.id)
+        elif TF[0]:
+            await call.message.answer(f'Выша анкета отклонена:\n{TF[1]}')
             await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
             await state.set_state(Friend.buildings)
             data.pop(call.from_user.id)
@@ -113,8 +120,17 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
                              message_id=call.message.message_id)  # Удаляем это сообщение
     dt1 = data[call.from_user.id][1].replace('"', '')
     dt2 = data[call.from_user.id][2].replace('"', '')
+    await call.message.answer('Анкета проверяется ИИ. Ожидайте.')
+    TF = await chek(data[call.from_user.id][2])
+    print(TF)
     if len(dt1) == 0 or len(dt2) == 0:
         await call.message.answer('Введены не корректные даные. Попробуй еще раз')
+        await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
+        await state.set_state(Friend.buildings)
+        data.pop(call.from_user.id)
+    elif TF[0]:
+        await call.message.answer(f'Выша анкета отклонена:\n{TF[1]}')
+        await call.message.answer('Заполните анкету заново.')
         await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
         await state.set_state(Friend.buildings)
         data.pop(call.from_user.id)
