@@ -78,7 +78,6 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
     if len(data[call.from_user.id]) < 4:  # Если длинна списка меньше 4 то фотографии небыли добавлены
         await call.message.answer('Вы не отправили не одной фотографии либо они еще не дошли')
     else:
-        TF = await chek(data[call.from_user.id][2])
         dt1 = data[call.from_user.id][1][2].replace('"', '')
         dt2 = data[call.from_user.id][2].replace('"', '')
         if len(dt1) == 0 or len(dt2) == 0:
@@ -86,32 +85,36 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
             await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
             await state.set_state(Friend.buildings)
             data.pop(call.from_user.id)
-        elif TF[0]:
-            await call.message.answer(f'Выша анкета отклонена:\n{TF[1]}')
-            await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
-            await state.set_state(Friend.buildings)
-            data.pop(call.from_user.id)
         else:
-            try:
-                await bot.delete_message(chat_id=call.from_user.id,
-                                         message_id=call.message.message_id)  # Удаляем это сообщение
-                await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
-                media = []
-                photos = data[call.from_user.id][3::]
-                for i in range(len(photos)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=photos[i],
-                            caption=f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}'))
-                    else:
-                        media.append(InputMediaPhoto(
-                            media=photos[i]))
-                await bot.send_media_group(chat_id=call.from_user.id, media=media)
-                await state.set_state(Friend.Okk)
-            except:
-                await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
-                await call.message.answer(f'{dt1}\n{dt2}')
-                await state.set_state(Friend.Okk)
+            await call.message.answer('Анкета проверяется ИИ. Ожидайте.')
+            TF = await chek(f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}')
+            if TF[0]:
+                await call.message.answer(f'Выша анкета отклонена:\n{TF[1]}')
+                await call.message.answer('Заполните анкету заново.')
+                await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
+                await state.set_state(Friend.buildings)
+                data.pop(call.from_user.id)
+            else:
+                try:
+                    await bot.delete_message(chat_id=call.from_user.id,
+                                             message_id=call.message.message_id)  # Удаляем это сообщение
+                    await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+                    media = []
+                    photos = data[call.from_user.id][3::]
+                    for i in range(len(photos)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=photos[i],
+                                caption=f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=photos[i]))
+                    await bot.send_media_group(chat_id=call.from_user.id, media=media)
+                    await state.set_state(Friend.Okk)
+                except:
+                    await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+                    await call.message.answer(f'{dt1}\n{dt2}')
+                    await state.set_state(Friend.Okk)
 
 
 @router.callback_query(Friend.photos, lambda query: query.data == 'NoPhoto')
@@ -120,24 +123,25 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
                              message_id=call.message.message_id)  # Удаляем это сообщение
     dt1 = data[call.from_user.id][1].replace('"', '')
     dt2 = data[call.from_user.id][2].replace('"', '')
-    await call.message.answer('Анкета проверяется ИИ. Ожидайте.')
-    TF = await chek(data[call.from_user.id][2])
-    print(TF)
+
     if len(dt1) == 0 or len(dt2) == 0:
         await call.message.answer('Введены не корректные даные. Попробуй еще раз')
         await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
         await state.set_state(Friend.buildings)
         data.pop(call.from_user.id)
-    elif TF[0]:
-        await call.message.answer(f'Выша анкета отклонена:\n{TF[1]}')
-        await call.message.answer('Заполните анкету заново.')
-        await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
-        await state.set_state(Friend.buildings)
-        data.pop(call.from_user.id)
     else:
-        await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
-        await call.message.answer(f'{dt1}\n{dt2}')
-        await state.set_state(Friend.Okk)
+        await call.message.answer('Анкета проверяется ИИ. Ожидайте.')
+        TF = await chek(data[call.from_user.id][2])
+        if TF[0]:
+            await call.message.answer(f'Выша анкета отклонена:\n{TF[1]}')
+            await call.message.answer('Заполните анкету заново.')
+            await call.message.answer('Кого ищем?', reply_markup=await Find_INLINE())
+            await state.set_state(Friend.buildings)
+            data.pop(call.from_user.id)
+        else:
+            await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+            await call.message.answer(f'{dt1}\n{dt2}')
+            await state.set_state(Friend.Okk)
 
 
 @router.message(Friend.Okk, lambda message: message.text == 'Круто, оставляем!')
