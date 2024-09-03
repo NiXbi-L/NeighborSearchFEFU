@@ -31,6 +31,12 @@ async def buildings(call: CallbackQuery, state: FSMContext):
     await state.set_state(add.name)
 
 
+@router.callback_query(add.buildings, lambda call: call.data == 'Und')
+async def buildings(call: CallbackQuery, state: FSMContext):
+    await state.set_state(Naighbor.Naighbor)
+    await call.message.answer('Переход к сервису поиска соседа', reply_markup=await mainKeyboard())
+
+
 @router.callback_query(add.buildings)
 async def buildings(call: CallbackQuery, state: FSMContext):
     await bot.delete_message(chat_id=call.from_user.id,
@@ -42,21 +48,22 @@ async def buildings(call: CallbackQuery, state: FSMContext):
 
 @router.message(add.name)
 async def name(message: Message, state: FSMContext):
-    await message.answer('Теперь напиши немного о себе', reply_markup=await Und_INLINE())
-    data[message.from_user.id].append(message.text)
-    await state.set_state(add.AboutMe)
+    if len(message.text) > 100:
+        await message.answer(f'Вы привысили лимит в 100 символов  на {100 - len(message.text)}')
+    else:
+        await message.answer('Теперь напиши немного о себе', reply_markup=await Und_INLINE())
+        data[message.from_user.id].append(message.text)
+        await state.set_state(add.AboutMe)
 
 
 @router.message(add.AboutMe)
 async def AboutMe(message: Message, state: FSMContext):
     data[message.from_user.id].append(message.text)
-    if len(message.text) < 1024:
+    if len(message.text) > 3990:
+        await message.answer(f'Вы привысили лимит в 3990 символов  на {3990 - len(message.text)}')
+    else:
         await message.answer('Если хочешь можешь прислать фотографии', reply_markup=await Photos_INLINE())
         await state.set_state(add.photos)
-    else:
-        await message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
-        await message.answer(f'{data[message.from_user.id][1]}\n{data[message.from_user.id][2]}')
-        await state.set_state(add.Okk)
 
 
 @router.message(add.photos)  # Запрос фотографий
@@ -77,24 +84,30 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
             await state.set_state(add.buildings)
             data.pop(call.from_user.id)
         else:
+            await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+            await bot.delete_message(chat_id=call.from_user.id,
+                                     message_id=call.message.message_id)  # Удаляем это сообщение
             try:
-                await bot.delete_message(chat_id=call.from_user.id,
-                                         message_id=call.message.message_id)  # Удаляем это сообщение
-                await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
                 media = []
                 photos = data[call.from_user.id][3::]
-                for i in range(len(photos)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=photos[i],
-                            caption=f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}'))
-                    else:
+                if len(f'{dt1}\n{dt2}') > 1023:
+                    for i in range(len(photos)):
                         media.append(InputMediaPhoto(
                             media=photos[i]))
-                await bot.send_media_group(chat_id=call.from_user.id, media=media)
+                    await bot.send_media_group(chat_id=call.from_user.id, media=media)
+                    await call.message.answer(f'{dt1}\n{dt2}')
+                else:
+                    for i in range(len(photos)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=photos[i],
+                                caption=f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=photos[i]))
+                    await bot.send_media_group(chat_id=call.from_user.id, media=media)
                 await state.set_state(add.Okk)
             except:
-                await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
                 await call.message.answer(f'{dt1}\n{dt2}')
                 await state.set_state(add.Okk)
 
@@ -194,16 +207,24 @@ async def Okk(message: Message, state: FSMContext):
         try:
             media = []
             if str(data[1]) != 'None':
-                ph = data[1][0:-1].split('|')
-                for i in range(len(ph)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=ph[i],
-                            caption=f'{name}\n{AboutMe}'))
-                    else:
+                if len(f'{name}\n{AboutMe}') > 1023:
+                    ph = data[1][0:-1].split('|')
+                    for i in range(len(ph)):
                         media.append(InputMediaPhoto(
                             media=ph[i]))
-                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await message.answer(f'{name}\n{AboutMe}')
+                else:
+                    ph = data[1][0:-1].split('|')
+                    for i in range(len(ph)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=ph[i],
+                                caption=f'{name}\n{AboutMe}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
             else:
                 await message.answer(f'{name}\n{AboutMe}')
         except:

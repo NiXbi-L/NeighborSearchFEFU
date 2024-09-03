@@ -40,16 +40,24 @@ async def viewing(message: Message, state: FSMContext):
             try:
                 media = []
                 if str(questionnaires[2]) != 'None':
-                    ph = questionnaires[2][0:-1].split('|')
-                    for i in range(len(ph)):
-                        if i == 0:
-                            media.append(InputMediaPhoto(
-                                media=ph[i],
-                                caption=f'{name}\n{AboutMe}'))
-                        else:
+                    if len(f'{name}\n{AboutMe}') > 1023:
+                        ph = questionnaires[2][0:-1].split('|')
+                        for i in range(len(ph)):
                             media.append(InputMediaPhoto(
                                 media=ph[i]))
-                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                        await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                        await message.answer(f'{name}\n{AboutMe}')
+                    else:
+                        ph = questionnaires[2][0:-1].split('|')
+                        for i in range(len(ph)):
+                            if i == 0:
+                                media.append(InputMediaPhoto(
+                                    media=ph[i],
+                                    caption=f'{name}\n{AboutMe}'))
+                            else:
+                                media.append(InputMediaPhoto(
+                                    media=ph[i]))
+                        await bot.send_media_group(chat_id=message.from_user.id, media=media)
                 else:
                     await message.answer(f'{name}\n{AboutMe}')
             except:
@@ -78,16 +86,24 @@ async def viewing(message: Message, state: FSMContext):
         try:
             media = []
             if str(questionnaires[2]) != 'None':
-                ph = questionnaires[2][0:-1].split('|')
-                for i in range(len(ph)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=ph[i],
-                            caption=f'{name}\n{AboutMe}'))
-                    else:
+                if len(f'{name}\n{AboutMe}') > 1023:
+                    ph = questionnaires[2][0:-1].split('|')
+                    for i in range(len(ph)):
                         media.append(InputMediaPhoto(
                             media=ph[i]))
-                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await message.answer(f'{name}\n{AboutMe}')
+                else:
+                    ph = questionnaires[2][0:-1].split('|')
+                    for i in range(len(ph)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=ph[i],
+                                caption=f'{name}\n{AboutMe}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
             else:
                 await message.answer(f'{name}\n{AboutMe}')
         except:
@@ -116,21 +132,29 @@ async def viewing(message: Message, state: FSMContext):
     name = myquestionnaires[2]
     try:
         media = []
-        if str(myquestionnaires[1]) != 'None':
-            ph = myquestionnaires[1][0:-1].split('|')
-            for i in range(len(ph)):
-                if i == 0:
-                    media.append(InputMediaPhoto(
-                        media=ph[i],
-                        caption=f'{name}\n{AboutMe}'))
-                else:
+        if str(questionnaires[2]) != 'None':
+            if len(f'{name}\n{AboutMe}') > 1023:
+                ph = questionnaires[2][0:-1].split('|')
+                for i in range(len(ph)):
                     media.append(InputMediaPhoto(
                         media=ph[i]))
-            await bot.send_media_group(chat_id=sendto, media=media)
+                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                await message.answer(f'{name}\n{AboutMe}')
+            else:
+                ph = questionnaires[2][0:-1].split('|')
+                for i in range(len(ph)):
+                    if i == 0:
+                        media.append(InputMediaPhoto(
+                            media=ph[i],
+                            caption=f'{name}\n{AboutMe}'))
+                    else:
+                        media.append(InputMediaPhoto(
+                            media=ph[i]))
+                await bot.send_media_group(chat_id=message.from_user.id, media=media)
         else:
-            await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
+            await message.answer(f'{name}\n{AboutMe}')
     except:
-        await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
+        await message.answer(f'{name}\n{AboutMe}')
 
 
     if str(message.from_user.username) == 'None':
@@ -155,16 +179,24 @@ async def viewing(message: Message, state: FSMContext):
         try:
             media = []
             if str(questionnaires[2]) != 'None':
-                ph = questionnaires[2][0:-1].split('|')
-                for i in range(len(ph)):
-                    if i == 0:
+                if len(f'{name}\n{AboutMe}') > 1023:
+                    ph = questionnaires[2][0:-1].split('|')
+                    for i in range(len(ph)):
                         media.append(InputMediaPhoto(
-                            media=ph[i],
-                            caption=f'{name}\n{AboutMe}'))
-                    else:
-                        media.append(InputMediaPhoto(
-                            media=ph[i]))
-                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await message.answer(f'{name}\n{AboutMe}')
+                else:
+                    ph = questionnaires[2][0:-1].split('|')
+                    for i in range(len(ph)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=ph[i],
+                                caption=f'{name}\n{AboutMe}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
             else:
                 await message.answer(f'{name}\n{AboutMe}')
         except:
@@ -176,4 +208,4 @@ async def viewing(message: Message, state: FSMContext):
 @router.message(View.view, lambda message: message.text == 'Меню')
 async def menu(message: Message, state: FSMContext):
     await message.answer('Возвращаю в меню', reply_markup=await mainKeyboard())
-    await state.clear()
+    await state.set_state(Naighbor.Naighbor)

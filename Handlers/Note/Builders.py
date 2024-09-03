@@ -58,7 +58,7 @@ async def Sections_INLINE(section, pages=False, page=0, Button=0):
                     callback_data=f'Back_{page}'
                 ),
             )
-    builder.adjust(1)
+    builder.adjust(2)
     return builder.as_markup()
 
 
@@ -122,7 +122,7 @@ async def Article_INLINE(section, pages=False, page=0, Button=0):
                     callback_data=f'Sections'
                 ),
             )
-    builder.adjust(1)
+    builder.adjust(2)
     return builder.as_markup()
 
 async def Back_INLINE(sid):

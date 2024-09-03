@@ -48,7 +48,6 @@ async def viewing(message: Message, state: FSMContext):
                 friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
                                               f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
 
-
         if len(friends) == 0:
             await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
         else:
@@ -61,16 +60,24 @@ async def viewing(message: Message, state: FSMContext):
             try:
                 media = []
                 if str(friends[2]) != 'None':
-                    ph = friends[2][0:-1].split('|')
-                    for i in range(len(ph)):
-                        if i == 0:
-                            media.append(InputMediaPhoto(
-                                media=ph[i],
-                                caption=f'{name}\n{AboutMe}'))
-                        else:
+                    if len(f'{name}\n{AboutMe}') > 1023:
+                        ph = friends[2][0:-1].split('|')
+                        for i in range(len(ph)):
                             media.append(InputMediaPhoto(
                                 media=ph[i]))
-                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                        await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                        await message.answer(f'{name}\n{AboutMe}')
+                    else:
+                        ph = friends[2][0:-1].split('|')
+                        for i in range(len(ph)):
+                            if i == 0:
+                                media.append(InputMediaPhoto(
+                                    media=ph[i],
+                                    caption=f'{name}\n{AboutMe}'))
+                            else:
+                                media.append(InputMediaPhoto(
+                                    media=ph[i]))
+                        await bot.send_media_group(chat_id=message.from_user.id, media=media)
                 else:
                     await message.answer(f'{name}\n{AboutMe}')
             except:
@@ -105,7 +112,7 @@ async def viewing(message: Message, state: FSMContext):
                                           f'gender = "M" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
         elif data[0][0] == 'G_friend':
             friends = await DBfunc.SELECT('id, AboutMe, photos, name', 'friend',
-                                        f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
+                                          f'gender = "W" AND (Filter = "Pohui" OR Filter = "G_friend") AND id >= {user[2]} AND userid != {user[0]}')
 
     if len(friends) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
@@ -120,16 +127,24 @@ async def viewing(message: Message, state: FSMContext):
         try:
             media = []
             if str(friends[2]) != 'None':
-                ph = friends[2][0:-1].split('|')
-                for i in range(len(ph)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=ph[i],
-                            caption=f'{name}\n{AboutMe}'))
-                    else:
+                if len(f'{name}\n{AboutMe}') > 1023:
+                    ph = friends[2][0:-1].split('|')
+                    for i in range(len(ph)):
                         media.append(InputMediaPhoto(
                             media=ph[i]))
-                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await message.answer(f'{name}\n{AboutMe}')
+                else:
+                    ph = friends[2][0:-1].split('|')
+                    for i in range(len(ph)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=ph[i],
+                                caption=f'{name}\n{AboutMe}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
             else:
                 await message.answer(f'{name}\n{AboutMe}')
         except:
@@ -205,7 +220,7 @@ async def viewing(message: Message, state: FSMContext):
     except:  # Сообщаем пользователю о неудаче
         await message.answer('Ваша анкета не была доставлена, возможно пользователь заблокировал бота.')
 
-    print(friends)
+
 
     if len(friends) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
@@ -220,16 +235,24 @@ async def viewing(message: Message, state: FSMContext):
         try:
             media = []
             if str(friends[2]) != 'None':
-                ph = friends[2][0:-1].split('|')
-                for i in range(len(ph)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=ph[i],
-                            caption=f'{name}\n{AboutMe}'))
-                    else:
+                if len(f'{name}\n{AboutMe}') > 1023:
+                    ph = friends[2][0:-1].split('|')
+                    for i in range(len(ph)):
                         media.append(InputMediaPhoto(
                             media=ph[i]))
-                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await message.answer(f'{name}\n{AboutMe}')
+                else:
+                    ph = friends[2][0:-1].split('|')
+                    for i in range(len(ph)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=ph[i],
+                                caption=f'{name}\n{AboutMe}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=message.from_user.id, media=media)
             else:
                 await message.answer(f'{name}\n{AboutMe}')
         except:

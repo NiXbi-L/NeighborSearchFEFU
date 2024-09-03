@@ -86,104 +86,19 @@ async def Go():
 
 async def Buildings_INLINE():
     builder = InlineKeyboardBuilder()
-
+    korp = [1.8]
+    for i in korp:
+        builder.add(
+            InlineKeyboardButton(
+                text=f'К{i}',
+                callback_data=f'К{i}'
+            )
+        )
     builder.add(
-        InlineKeyboardButton(
-            text='Test',
-            callback_data=f'Test'
-        ),
         InlineKeyboardButton(
             text='Назад',
             callback_data=f'Und'
         )
-        # InlineKeyboardButton(
-        #     text='K1.8',
-        #     callback_data=f'K1.8'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K1.9',
-        #     callback_data=f'K1.9'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K1.10',
-        #     callback_data=f'K1.10'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K1.11',
-        #     callback_data=f'K1.11'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K2.1',
-        #     callback_data=f'K2.1'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K2.2',
-        #     callback_data=f'K2.2'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K2.3',
-        #     callback_data=f'K2.3'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K2.4',
-        #     callback_data=f'K2.4'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K2.5',
-        #     callback_data=f'K2.5'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K2.6',
-        #     callback_data=f'K2.6'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K2.7',
-        #     callback_data=f'K2.7'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K1',
-        #     callback_data=f'K1'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K2',
-        #     callback_data=f'K2'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K3',
-        #     callback_data=f'K3'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K4',
-        #     callback_data=f'K4'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K5',
-        #     callback_data=f'K5'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K6',
-        #     callback_data=f'K6'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K7',
-        #     callback_data=f'K7'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K8',
-        #     callback_data=f'K8'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K9',
-        #     callback_data=f'K9'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K10',
-        #     callback_data=f'K10'
-        # ),
-        # InlineKeyboardButton(
-        #     text='K11',
-        #     callback_data=f'K11'
-        # ),
     )
     builder.adjust(3)
 
