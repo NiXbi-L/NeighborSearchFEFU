@@ -194,15 +194,22 @@ async def viewing(message: Message, state: FSMContext):
             media = []
             if str(myfriends[1]) != 'None':
                 ph = myfriends[1][0:-1].split('|')
-                for i in range(len(ph)):
-                    if i == 0:
+                if len(f'{name}\n{AboutMe}') > 1023:
+                    for i in range(len(ph)):
                         media.append(InputMediaPhoto(
-                            media=ph[i],
-                            caption=f'{name}\n{AboutMe}'))
-                    else:
-                        media.append(InputMediaPhoto(
-                            media=ph[i]))
-                await bot.send_media_group(chat_id=sendto, media=media)
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=sendto, media=media)
+                    await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
+                else:
+                    for i in range(len(ph)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=ph[i],
+                                caption=f'{name}\n{AboutMe}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=sendto, media=media)
             else:
                 await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
         except:

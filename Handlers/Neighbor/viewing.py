@@ -122,49 +122,52 @@ async def viewing(message: Message, state: FSMContext):
     questionnaires = await DBfunc.SELECT('id, AboutMe, photos, name', 'questionnaire',
                                          f'gender = "{user[1]}" AND building = "{data[0][0]}" AND id >= {user[2]} AND userid != {user[0]}')
 
-    sendto = await DBfunc.SELECT('userid', 'questionnaire', f'id = {user[2]}')  # получаем данные tgid лайкнутой анкеты
-    sendto = await DBfunc.SELECT('tgid', 'user', f'id = {sendto[0][0]}')
-    sendto = sendto[0][0]
-    # Отправляем свою анкету
-    myquestionnaires = await DBfunc.SELECT('AboutMe, photos, name', 'questionnaire', f'userid = {user[0]}')
-    myquestionnaires = myquestionnaires[0]
-    AboutMe = myquestionnaires[0]
-    name = myquestionnaires[2]
+    # Пытаемся отправить анкету
     try:
-        media = []
-        if str(questionnaires[2]) != 'None':
-            if len(f'{name}\n{AboutMe}') > 1023:
-                ph = questionnaires[2][0:-1].split('|')
-                for i in range(len(ph)):
-                    media.append(InputMediaPhoto(
-                        media=ph[i]))
-                await bot.send_media_group(chat_id=message.from_user.id, media=media)
-                await message.answer(f'{name}\n{AboutMe}')
-            else:
-                ph = questionnaires[2][0:-1].split('|')
-                for i in range(len(ph)):
-                    if i == 0:
-                        media.append(InputMediaPhoto(
-                            media=ph[i],
-                            caption=f'{name}\n{AboutMe}'))
-                    else:
+        sendto = await DBfunc.SELECT('userid', 'questionnaire', f'id = {user[2]}')  # получаем данные tgid лайкнутой анкеты
+        sendto = await DBfunc.SELECT('tgid', 'user', f'id = {sendto[0][0]}')
+        sendto = sendto[0][0]
+        # Отправляем свою анкету
+        myfriends = await DBfunc.SELECT('AboutMe, photos, name', 'questionnaire', f'userid = {user[0]}')
+        myfriends = myfriends[0]
+        AboutMe = myfriends[0]
+        name = myfriends[2]
+        try:
+            media = []
+            if str(myfriends[1]) != 'None':
+                ph = myfriends[1][0:-1].split('|')
+                if len(f'{name}\n{AboutMe}') > 1023:
+                    for i in range(len(ph)):
                         media.append(InputMediaPhoto(
                             media=ph[i]))
-                await bot.send_media_group(chat_id=message.from_user.id, media=media)
+                    await bot.send_media_group(chat_id=sendto, media=media)
+                    await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
+                else:
+                    for i in range(len(ph)):
+                        if i == 0:
+                            media.append(InputMediaPhoto(
+                                media=ph[i],
+                                caption=f'{name}\n{AboutMe}'))
+                        else:
+                            media.append(InputMediaPhoto(
+                                media=ph[i]))
+                    await bot.send_media_group(chat_id=sendto, media=media)
+            else:
+                await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
+        except:
+            await bot.send_message(chat_id=sendto, text=f'{name}\n{AboutMe}')
+
+        if str(message.from_user.username) == 'None':
+            await bot.send_message(chat_id=sendto,
+                                   text=f'Ты можешь написать [{name}](tg://openmessage?user_id={message.from_user.id})',
+                                   parse_mode='Markdown')
         else:
-            await message.answer(f'{name}\n{AboutMe}')
-    except:
-        await message.answer(f'{name}\n{AboutMe}')
-
-
-    if str(message.from_user.username) == 'None':
-        await bot.send_message(chat_id=sendto,
-                               text=f'Ты можешь написать [{name}](tg://openmessage?user_id={message.from_user.id})',
-                               parse_mode='Markdown')
-    else:
-        await bot.send_message(chat_id=sendto,
-                               text=f'Ты можешь написать [{name}](https://t.me/{message.from_user.username})',
-                               parse_mode='Markdown')
+            await bot.send_message(chat_id=sendto,
+                                   text=f'Ты можешь написать [{name}](https://t.me/{message.from_user.username})',
+                                   parse_mode='Markdown')
+        await message.answer('Ваша анкета отправлена ожидайте ответа')
+    except:  # Сообщаем пользователю о неудаче
+        await message.answer('Ваша анкета не была доставлена, возможно пользователь заблокировал бота.')
 
     if len(questionnaires) == 1:
         await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
