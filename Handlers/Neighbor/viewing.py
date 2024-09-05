@@ -98,11 +98,8 @@ async def viewing(message: Message, state: FSMContext):
         await DBfunc.UPDATE('user', f'qid = 0', f'{user[0]}')
         Questionnaires = await DBfunc.SELECT('id, AboutMe, photos, name', 'questionnaire',
                                              f'gender = "{user[1]}" AND building = "{data[0][0]}" AND id >= 0 AND userid != {user[0]} AND id NOT IN({st})')
-        ID = 0
-        if len(Questionnaires) == 1:
-            ID = await send(message, Questionnaires, 0)
-        else:
-            ID = await send(message, Questionnaires)
+        ID = await send(message, Questionnaires, 0)
+
         await DBfunc.UPDATE('user', f'qid = {ID}', f'{user[0]}')
 
     else:
@@ -177,14 +174,11 @@ async def viewing(message: Message, state: FSMContext):
         Questionnaires = await DBfunc.SELECT('id, AboutMe, photos, name', 'questionnaire',
                                              f'gender = "{user[1]}" AND building = "{data[0][0]}" AND id >= 0 AND userid != {user[0]} AND id NOT IN({st})')
         ID = 0
-        if len(questionnaires) == 0:
-            if len(Questionnaires) != 0:
-                ID = await send(message, Questionnaires, 0)
-            else:
-                await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
-                await state.set_state(Naighbor.Naighbor)
+        if len(Questionnaires) != 0:
+            ID = await send(message, Questionnaires, 0)
         else:
-            ID = await send(message, Questionnaires)
+            await message.answer('Нет подходящих для вас анкет', reply_markup=await mainKeyboard())
+            await state.set_state(Naighbor.Naighbor)
         await DBfunc.UPDATE('user', f'qid = {ID}', f'{user[0]}')
     else:
         await state.set_state(View.view)
