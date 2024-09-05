@@ -189,6 +189,7 @@ async def Okk(message: Message, state: FSMContext):
     else:
         ID = await DBfunc.SELECT('id', 'questionnaire', f'userid = {user[0]}')
         ID = ID[0][0]
+        await DBfunc.DELETEWHERE('questionnaire_liked', f'userid = {user[0]}')
         await DBfunc.DELETE('questionnaire', f'{ID}')
         await message.answer('Ваша анкета удалена')
 
