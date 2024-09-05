@@ -41,6 +41,7 @@ async def mailigMethod(users, usid): #Метод рассылки сообщен
             Blocked += 1
             await DBfunc.DELETEWHERE('questionnaire', f'userid = {i[0]}')
             await DBfunc.DELETEWHERE('friend', f'userid = {i[0]}')
+            await DBfunc.DELETEWHERE('questionnaire_liked', f'userid = {i[0]}')
             await DBfunc.DELETE('user', f'{i[0]}')
     await bot.send_message(chat_id=usid, text=f'Отчет по рассылке:\n'
                                               f'Дошло: {Sended}\n'
