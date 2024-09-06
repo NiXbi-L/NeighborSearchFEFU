@@ -101,7 +101,7 @@ async def Go():
 
 async def Buildings_INLINE():
     builder = InlineKeyboardBuilder()
-    korp = [1.8,7.1]
+    korp = [1.8, '1.10', 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 6.1, 6.2, 7.1, 7.2, 8.1, 8.2, 9, 10, 11]
     for i in korp:
         builder.add(
             InlineKeyboardButton(

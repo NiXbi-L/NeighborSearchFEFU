@@ -76,7 +76,7 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
     if len(data[call.from_user.id]) < 4:  # Если длинна списка меньше 4 то фотографии небыли добавлены
         await call.message.answer('Вы не отправили не одной фотографии либо они еще не дошли')
     else:
-        dt1 = data[call.from_user.id][1][2].replace('"', '')
+        dt1 = data[call.from_user.id][1].replace('"', '')
         dt2 = data[call.from_user.id][2].replace('"', '')
         if len(dt1) == 0 or len(dt2) == 0:
             await call.message.answer('Введены не корректные даные. Попробуй еще раз')
@@ -101,7 +101,7 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
                         if i == 0:
                             media.append(InputMediaPhoto(
                                 media=photos[i],
-                                caption=f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}'))
+                                caption=f'{dt1}\n{dt2}'))
                         else:
                             media.append(InputMediaPhoto(
                                 media=photos[i]))
@@ -147,6 +147,8 @@ async def Okk(message: Message, state: FSMContext):
                             f'{user[0]},"{dt[0]}","{dt2}","{user[1]}","{dt1}"')
         data.pop(message.from_user.id)
     else:
+        dt2 = dt[2].replace('"', '')
+        dt1 = dt[1].replace('"', '')
         ph = ''
         for i in dt[3::]:
             ph += f'{i}|'
@@ -155,7 +157,7 @@ async def Okk(message: Message, state: FSMContext):
             ID = ID[0][0]
             await DBfunc.DELETE('questionnaire', f'{ID}')
         await DBfunc.INSERT('questionnaire', 'userid, building, AboutMe, photos, gender, name',
-                            f'{user[0]},"{dt[0]}","{dt[2]}","{ph}","{user[1]}","{dt[1]}"')
+                            f'{user[0]},"{dt[0]}","{dt2}","{ph}","{user[1]}","{dt1}"')
         data.pop(message.from_user.id)
 
 
@@ -190,6 +192,7 @@ async def Okk(message: Message, state: FSMContext):
         ID = await DBfunc.SELECT('id', 'questionnaire', f'userid = {user[0]}')
         ID = ID[0][0]
         await DBfunc.DELETEWHERE('questionnaire_liked', f'userid = {user[0]}')
+        await DBfunc.DELETEWHERE('questionnaire_liked', f'qid = {ID}')
         await DBfunc.DELETE('questionnaire', f'{ID}')
         await message.answer('Ваша анкета удалена')
 

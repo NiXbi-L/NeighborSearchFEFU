@@ -15,7 +15,7 @@ bot = Bot(token=BotSetings.token)  # Создаем объект бот
 data = {}
 
 
-async def mailigMethod(users, usid): #Метод рассылки сообщений
+async def mailigMethod(users, usid):  # Метод рассылки сообщений
     Sended = 0
     Blocked = 0
     for i in users:
@@ -39,9 +39,14 @@ async def mailigMethod(users, usid): #Метод рассылки сообщен
                 Sended += 1
         except:
             Blocked += 1
-            await DBfunc.DELETEWHERE('questionnaire', f'userid = {i[0]}')
             await DBfunc.DELETEWHERE('friend', f'userid = {i[0]}')
             await DBfunc.DELETEWHERE('questionnaire_liked', f'userid = {i[0]}')
+            questionnaire = await DBfunc.SELECT('id', 'questionnaire', f'userid = {i[0]}')
+            try:
+                await DBfunc.DELETEWHERE('questionnaire_liked', f'qid = {questionnaire[0][0]}')
+            except:
+                print('1')
+            await DBfunc.DELETEWHERE('questionnaire', f'userid = {i[0]}')
             await DBfunc.DELETE('user', f'{i[0]}')
     await bot.send_message(chat_id=usid, text=f'Отчет по рассылке:\n'
                                               f'Дошло: {Sended}\n'

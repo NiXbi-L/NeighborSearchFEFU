@@ -16,21 +16,22 @@ data = {}
 
 async def send(message, questionnairess, index=1):
     questionnaires = questionnairess[index]
+    print(questionnaires)
     ID = questionnaires[0]
     AboutMe = questionnaires[2]
     name = questionnaires[4]
     try:
         media = []
-        if str(questionnaires[2]) != 'None':
+        if str(questionnaires[3]) != 'None':
             if len(f'{name}\n{AboutMe}') > 1023:
-                ph = questionnaires[2][0:-1].split('|')
+                ph = questionnaires[3][0:-1].split('|')
                 for i in range(len(ph)):
                     media.append(InputMediaPhoto(
                         media=ph[i]))
                 await bot.send_media_group(chat_id=message.from_user.id, media=media)
                 await message.answer(f'{name}\n{AboutMe}')
             else:
-                ph = questionnaires[2][0:-1].split('|')
+                ph = questionnaires[3][0:-1].split('|')
                 for i in range(len(ph)):
                     if i == 0:
                         media.append(InputMediaPhoto(
@@ -42,7 +43,8 @@ async def send(message, questionnairess, index=1):
                 await bot.send_media_group(chat_id=message.from_user.id, media=media)
         else:
             await message.answer(f'{name}\n{AboutMe}')
-    except:
+    except Exception as e:
+        print(e)
         await message.answer(f'{name}\n{AboutMe}')
     return ID
 
@@ -86,7 +88,7 @@ async def MyLikes(message: Message, state: FSMContext):
         await send(message, data[message.from_user.id][0], index=data[message.from_user.id][1])
 
         myLikes = await genlikedstr(user[0][0], 1)
-        if len(myLikes) != 0:
+        if myLikes != '0':
             user = await DBfunc.SELECT('tgid, username', 'user', f'id = {data[message.from_user.id][0][0][1]}')
             user = user[0]
             if str(user[1]) == 'None':

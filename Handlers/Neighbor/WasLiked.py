@@ -19,16 +19,16 @@ async def send(message, questionnairess, index=1):
     name = questionnaires[4]
     try:
         media = []
-        if str(questionnaires[2]) != 'None':
+        if str(questionnaires[3]) != 'None':
             if len(f'{name}\n{AboutMe}') > 1023:
-                ph = questionnaires[2][0:-1].split('|')
+                ph = questionnaires[3][0:-1].split('|')
                 for i in range(len(ph)):
                     media.append(InputMediaPhoto(
                         media=ph[i]))
                 await bot.send_media_group(chat_id=message.from_user.id, media=media)
                 await message.answer(f'{name}\n{AboutMe}')
             else:
-                ph = questionnaires[2][0:-1].split('|')
+                ph = questionnaires[3][0:-1].split('|')
                 for i in range(len(ph)):
                     if i == 0:
                         media.append(InputMediaPhoto(
@@ -78,14 +78,16 @@ async def genQ(message, user):
 @router.message(Naighbor.Naighbor, lambda message: message.text == 'Меня лайкнули')
 async def MeLikes(message: Message, state: FSMContext):
     user = await DBfunc.SELECT('id', 'user', f'tgid = {message.from_user.id}')
+    try:
+        questionnaire_liked = await genQ(message, user)
 
-    questionnaire_liked = await genQ(message, user)
-
-    if questionnaire_liked[0]:
-        questionnaire_liked_F = questionnaire_liked[1]
-        await message.answer('Режим просмотра', reply_markup=await Viewing())
-        await state.set_state(Naighbor.Mylikes)
-        await send(message, questionnaire_liked_F, index=0)
+        if questionnaire_liked[0]:
+            questionnaire_liked_F = questionnaire_liked[1]
+            await message.answer('Режим просмотра', reply_markup=await Viewing())
+            await state.set_state(Naighbor.Mylikes)
+            await send(message, questionnaire_liked_F, index=0)
+    except:
+        await message.answer('У вас нет анкеты')
 
 
 @router.message(Naighbor.Mylikes, lambda message: message.text == '👍')
