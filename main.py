@@ -4,7 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 
 from config import BotSetings
-from Handlers.Neighbor import questionnaire, viewing
+from Handlers.Neighbor import questionnaire, viewing, likes, WasLiked
 from Handlers.Friends import Questionnaire, Viewing
 from Handlers.Note import note
 from Handlers import Admin, register
@@ -19,6 +19,8 @@ async def main():
     dp.include_routers(
         register.router,
         questionnaire.router,
+        likes.router,
+        WasLiked.router,
         viewing.router,
         Admin.router,
         Questionnaire.router,

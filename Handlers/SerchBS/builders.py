@@ -10,6 +10,8 @@ async def mainKeyboard():
         KeyboardButton(text='Заполнить анкету заново'),
         KeyboardButton(text='Моя анкета'),
         KeyboardButton(text='Удалить анкету'),
+        KeyboardButton(text='Мои лайки'),
+        KeyboardButton(text='Меня лайкнули'),
         KeyboardButton(text='К списку сервисов'),
     )
     builder.adjust(2)
@@ -52,6 +54,19 @@ async def Viewing():
     return builder.as_markup(resize_keyboard=True)
 
 
+async def MyLike():
+    builder = ReplyKeyboardBuilder()
+
+    builder.add(
+        KeyboardButton(text='⬅️'),
+        KeyboardButton(text='Меню'),
+        KeyboardButton(text='➡️'),
+        KeyboardButton(text='Отозвать лайк'),
+    )
+    builder.adjust(3)
+    return builder.as_markup(resize_keyboard=True)
+
+
 async def Ok():
     builder = ReplyKeyboardBuilder()
 
@@ -86,7 +101,7 @@ async def Go():
 
 async def Buildings_INLINE():
     builder = InlineKeyboardBuilder()
-    korp = [1.8]
+    korp = [1.8,7.1]
     for i in korp:
         builder.add(
             InlineKeyboardButton(

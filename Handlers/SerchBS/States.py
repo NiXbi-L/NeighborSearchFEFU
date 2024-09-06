@@ -28,3 +28,4 @@ class admin(StatesGroup):
 
 class Naighbor(StatesGroup):
     Naighbor = State()
+    Mylikes = State()
