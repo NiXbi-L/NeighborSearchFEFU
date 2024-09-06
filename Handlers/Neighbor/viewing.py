@@ -121,6 +121,11 @@ async def viewing(message: Message, state: FSMContext):
     questionnaires = await DBfunc.SELECT('id, AboutMe, photos, name', 'questionnaire',
                                          f'gender = "{user[1]}" AND building = "{data[0][0]}" AND id >= {user[2]} AND userid != {user[0]} AND id NOT IN({st})')
 
+    sendto = await DBfunc.SELECT('userid', 'questionnaire', f'id = {user[2]}')  # получаем данные tgid лайкнутой анкеты
+    sendto = await DBfunc.SELECT('tgid', 'user', f'id = {sendto[0][0]}')
+    sendto = sendto[0][0]
+    await bot.send_message(chat_id=sendto, text='Вас лайкнули в сервисе "Поиск соседа"')
+
     if len(questionnaires) <= 1:
         await DBfunc.UPDATE('user', f'qid = 0', f'{user[0]}')
         Questionnaires = await DBfunc.SELECT('id, AboutMe, photos, name', 'questionnaire',

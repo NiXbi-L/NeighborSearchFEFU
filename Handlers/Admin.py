@@ -21,20 +21,20 @@ async def mailigMethod(users, usid):  # Метод рассылки сообще
     for i in users:
         tgid = i[1]
         try:
-            if len(data) == 1:
+            if len(data[usid]) == 1:
                 await bot.send_message(chat_id=tgid, text=f'{data[usid][0]}')
                 Sended += 1
             else:
                 media = []
                 photos = data[usid][1::]
-                for i in range(len(photos)):
-                    if i == 0:
+                for j in range(len(photos)):
+                    if j == 0:
                         media.append(InputMediaPhoto(
-                            media=photos[i],
+                            media=photos[j],
                             caption=f'{data[usid][0]}'))
                     else:
                         media.append(InputMediaPhoto(
-                            media=photos[i]))
+                            media=photos[j]))
                 await bot.send_media_group(chat_id=tgid, media=media)
                 Sended += 1
         except:
