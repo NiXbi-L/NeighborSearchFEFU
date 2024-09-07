@@ -67,22 +67,18 @@ async def genlikedstr(userid, status=-1):
 @router.message(Naighbor.Naighbor, lambda message: message.text == 'Мои лайки')
 async def MyLikes(message: Message, state: FSMContext):
     user = await DBfunc.SELECT('id', 'user', f'tgid = {message.from_user.id}')
-    myLikes = await genlikedstr(user[0][0])
-    questionnaire_liked = await DBfunc.SELECT('id, AboutMe, photos, name', 'questionnaire',
-                                              f'id IN({myLikes})')
+    myLikes = await genlikedstr(user[0][0], 1)
+    questionnaire_liked = list(await DBfunc.SELECT('id, userid, AboutMe, photos, name', 'questionnaire',
+                                                     f'id IN({myLikes})'))
+    myLikes = await genlikedstr(user[0][0], 0)
+    for i in list(await DBfunc.SELECT('id, userid, AboutMe, photos, name', 'questionnaire',
+                                      f'id IN({myLikes})')):
+        questionnaire_liked.append(i)
 
     if len(questionnaire_liked) == 0:
         await message.answer('У вас нет лайкнутых анкет')
     else:
-        myLikes = await genlikedstr(user[0][0], 1)
-        questionnaire_liked_T = list(await DBfunc.SELECT('id, userid, AboutMe, photos, name', 'questionnaire',
-                                                         f'id IN({myLikes})'))
-        myLikes = await genlikedstr(user[0][0], 0)
-        for i in list(await DBfunc.SELECT('id, userid, AboutMe, photos, name', 'questionnaire',
-                                          f'id IN({myLikes})')):
-            questionnaire_liked_T.append(i)
-
-        data[message.from_user.id] = [questionnaire_liked_T, 0]
+        data[message.from_user.id] = [questionnaire_liked, 0]
         await message.answer('Режим просмотра', reply_markup=await MyLike())
         await state.set_state(Naighbor.Mylikes)
         await send(message, data[message.from_user.id][0], index=data[message.from_user.id][1])
