@@ -8,6 +8,7 @@ from DB import DBfunc
 
 from Handlers.SerchBS.builders import admKeyboard, mainKeyboard, Photos_INLINE, Ok
 from Handlers.SerchBS.States import admin
+from Handlers.General_Func import DELL
 from config import BotSetings
 
 router = Router()  # Создаем объект роутер
@@ -15,7 +16,7 @@ bot = Bot(token=BotSetings.token)  # Создаем объект бот
 data = {}
 
 
-async def mailigMethod(users, usid):  # Метод рассылки сообщений
+async def mailigMethod(users, usid):  # функция рассылки сообщений
     Sended = 0
     Blocked = 0
     for i in users:
@@ -37,17 +38,10 @@ async def mailigMethod(users, usid):  # Метод рассылки сообще
                             media=photos[j]))
                 await bot.send_media_group(chat_id=tgid, media=media)
                 Sended += 1
+                await DELL(i[0])
         except:
             Blocked += 1
-            await DBfunc.DELETEWHERE('friend', f'userid = {i[0]}')
-            await DBfunc.DELETEWHERE('questionnaire_liked', f'userid = {i[0]}')
-            questionnaire = await DBfunc.SELECT('id', 'questionnaire', f'userid = {i[0]}')
-            try:
-                await DBfunc.DELETEWHERE('questionnaire_liked', f'qid = {questionnaire[0][0]}')
-            except:
-                print('1')
-            await DBfunc.DELETEWHERE('questionnaire', f'userid = {i[0]}')
-            await DBfunc.DELETE('user', f'{i[0]}')
+
     await bot.send_message(chat_id=usid, text=f'Отчет по рассылке:\n'
                                               f'Дошло: {Sended}\n'
                                               f'Не дошло: {Blocked}')

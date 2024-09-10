@@ -6,6 +6,7 @@ from DB import DBfunc
 
 from Handlers.SerchBS.builders import mainKeyboard, Viewing
 from Handlers.SerchBS.States import Naighbor
+from Handlers.General_Func import Userlink
 from config import BotSetings
 
 router = Router()  # Создаем объект роутер
@@ -104,29 +105,18 @@ async def Next(message: Message, state: FSMContext):
         us = await DBfunc.SELECT('tgid', 'user', f'id = {questionnaire_liked[1][0][1]}')
         if str(message.from_user.username) == 'None':
             await bot.send_message(chat_id=us[0][0],
-                text=f'[{myquestionnaire[1]}](tg://openmessage?user_id={message.from_user.id}) лайкнул в ответ.',
-                parse_mode='Markdown')
+                                   text=f'[{myquestionnaire[1]}](tg://openmessage?user_id={message.from_user.id}) лайкнул в ответ.',
+                                   parse_mode='Markdown')
         else:
             await bot.send_message(chat_id=us[0][0],
-                text=f'[{myquestionnaire[1]}](https://t.me/{message.from_user.username}) лайкнул в ответ.',
-                parse_mode='Markdown')
+                                   text=f'[{myquestionnaire[1]}](https://t.me/{message.from_user.username}) лайкнул в ответ.',
+                                   parse_mode='Markdown')
     except:
         print('Ошибка')
+    await Userlink(message, questionnaire_liked[1][0][1])
 
     if questionnaire_liked[0] and len(questionnaire_liked[1]) > 1:
         questionnaire_liked_F = questionnaire_liked[1]
-
-        user = await DBfunc.SELECT('tgid, username', 'user', f'id = {questionnaire_liked_F[0][1]}')
-        user = user[0]
-
-        if str(user[1]) == 'None':
-            await message.answer(
-                text=f'Ты можешь написать [{questionnaire_liked_F[0][4]}](tg://openmessage?user_id={user[0]})',
-                parse_mode='Markdown')
-        else:
-            await message.answer(
-                text=f'Ты можешь написать [{questionnaire_liked_F[0][4]}](https://t.me/{user[1]})',
-                parse_mode='Markdown')
         await send(message, questionnaire_liked_F, index=1)
     else:
         await state.set_state(Naighbor.Naighbor)

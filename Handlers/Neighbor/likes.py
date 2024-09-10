@@ -6,6 +6,7 @@ from DB import DBfunc
 
 from Handlers.SerchBS.builders import mainKeyboard, MyLike
 from Handlers.SerchBS.States import Naighbor
+from Handlers.General_Func import Userlink, DELLq_like
 from config import BotSetings
 
 router = Router()  # Создаем объект роутер
@@ -69,7 +70,7 @@ async def MyLikes(message: Message, state: FSMContext):
     user = await DBfunc.SELECT('id', 'user', f'tgid = {message.from_user.id}')
     myLikes = await genlikedstr(user[0][0], 1)
     questionnaire_liked = list(await DBfunc.SELECT('id, userid, AboutMe, photos, name', 'questionnaire',
-                                                     f'id IN({myLikes})'))
+                                                   f'id IN({myLikes})'))
     myLikes = await genlikedstr(user[0][0], 0)
     for i in list(await DBfunc.SELECT('id, userid, AboutMe, photos, name', 'questionnaire',
                                       f'id IN({myLikes})')):
@@ -85,16 +86,7 @@ async def MyLikes(message: Message, state: FSMContext):
 
         myLikes = await genlikedstr(user[0][0], 1)
         if myLikes != '0':
-            user = await DBfunc.SELECT('tgid, username', 'user', f'id = {data[message.from_user.id][0][0][1]}')
-            user = user[0]
-            if str(user[1]) == 'None':
-                await message.answer(
-                    text=f'Ты можешь написать [{data[message.from_user.id][0][0][4]}](tg://openmessage?user_id={user[0]})',
-                    parse_mode='Markdown')
-            else:
-                await message.answer(
-                    text=f'Ты можешь написать [{data[message.from_user.id][0][0][4]}](https://t.me/{user[1]})',
-                    parse_mode='Markdown')
+            await Userlink(message, data[message.from_user.id][0][0][1])
 
 
 @router.message(Naighbor.Mylikes, lambda message: message.text == '➡️')
@@ -106,17 +98,7 @@ async def Next(message: Message):
 
     if await DBfunc.IF('questionnaire_liked', 'id',
                        f'qid = {data[message.from_user.id][0][data[message.from_user.id][1]][0]} AND status = 1'):
-        user = await DBfunc.SELECT('tgid, username', 'user', f'id = {data[message.from_user.id][0][data[message.from_user.id][1]][1]}')
-        user = user[0]
-
-        if str(user[1]) == 'None':
-            await message.answer(
-                text=f'Ты можешь написать [{data[message.from_user.id][0][data[message.from_user.id][1]][4]}](tg://openmessage?user_id={user[0]})',
-                parse_mode='Markdown')
-        else:
-            await message.answer(
-                text=f'Ты можешь написать [{data[message.from_user.id][0][data[message.from_user.id][1]][4]}](https://t.me/{user[1]})',
-                parse_mode='Markdown')
+        await Userlink(message, data[message.from_user.id][0][data[message.from_user.id][1]][1])
 
 
 @router.message(Naighbor.Mylikes, lambda message: message.text == '⬅️')
@@ -128,51 +110,26 @@ async def Back(message: Message):
 
     if await DBfunc.IF('questionnaire_liked', 'id',
                        f'qid = {data[message.from_user.id][0][data[message.from_user.id][1]][0]} AND status = 1'):
-        user = await DBfunc.SELECT('tgid, username', 'user', f'id = {data[message.from_user.id][0][data[message.from_user.id][1]][1]}')
-        user = user[0]
-
-        if str(user[1]) == 'None':
-            await message.answer(
-                text=f'Ты можешь написать [{data[message.from_user.id][0][data[message.from_user.id][1]][4]}](tg://openmessage?user_id={user[0]})',
-                parse_mode='Markdown')
-        else:
-            await message.answer(
-                text=f'Ты можешь написать [{data[message.from_user.id][0][data[message.from_user.id][1]][4]}](https://t.me/{user[1]})',
-                parse_mode='Markdown')
+        await Userlink(message, data[message.from_user.id][0][data[message.from_user.id][1]][1])
 
 
 @router.message(Naighbor.Mylikes, lambda message: message.text == 'Отозвать лайк')
 async def UnLike(message: Message, state: FSMContext):
-    user = await DBfunc.SELECT('id,tgid', 'user', f'tgid = {message.from_user.id}')
-    myquestionnaire = await DBfunc.SELECT('id,name', 'questionnaire',
-                                          f'userid = {user[0][0]}')
-    myquestionnaire = myquestionnaire[0]
-    await DBfunc.DELETEWHERE('questionnaire_liked',
-                             f'qid = {myquestionnaire[0]} AND userid = {data[message.from_user.id][0][data[message.from_user.id][1]][1]}')
-    await DBfunc.DELETEWHERE('questionnaire_liked',
-                             f'qid = {data[message.from_user.id][0][data[message.from_user.id][1]][0]} AND userid = {user[0][0]}')
+    await DELLq_like(message, data)
+
     data[message.from_user.id][0].pop(data[message.from_user.id][1])
+
     if len(data[message.from_user.id][0]) != 0:
         await send(message, data[message.from_user.id][0], index=data[message.from_user.id][1])
 
         if await DBfunc.IF('questionnaire_liked', 'id',
                            f'qid = {data[message.from_user.id][0][data[message.from_user.id][1]][0]} AND status = 1'):
-            user = await DBfunc.SELECT('tgid, username', 'user', f'id = {data[message.from_user.id][0][0][1]}')
-            user = user[0]
-
-            if str(user[1]) == 'None':
-                await message.answer(
-                    text=f'Ты можешь написать [{data[message.from_user.id][0][data[message.from_user.id][1]][4]}](tg://openmessage?user_id={user[0]})',
-                    parse_mode='Markdown')
-            else:
-                await message.answer(
-                    text=f'Ты можешь написать [{data[message.from_user.id][0][data[message.from_user.id][1]][4]}](https://t.me/{user[1]})',
-                    parse_mode='Markdown')
+            await Userlink(message, data[message.from_user.id][0][0][1])
     else:
         await state.set_state(Naighbor.Naighbor)
+        
         await message.answer('Возвращаю в меню', reply_markup=await mainKeyboard())
         data.pop(message.from_user.id)
-
 
 
 @router.message(Naighbor.Mylikes, lambda message: message.text == 'Меню')

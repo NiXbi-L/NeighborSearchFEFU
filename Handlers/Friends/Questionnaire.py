@@ -8,6 +8,7 @@ from Handlers.SerchBS.builders import Photos_INLINE, Ok, mainKeyboard, Find_INLI
 from Handlers.SerchBS.States import Friend
 from config import BotSetings
 from Handlers.Friends.GPTmoderation import chek
+from Handlers.General_Func import DELLfriend,DELLq_like
 
 router = Router()  # Создаем объект роутер
 bot = Bot(token=BotSetings.token)  # Создаем объект бот
@@ -161,9 +162,7 @@ async def Okk(message: Message, state: FSMContext):
     dt = data[message.from_user.id]
     if len(dt) < 4:  # Если длинна списка меньше 4 то фотографии небыли добавлены
         if await DBfunc.IF('friend', 'id', f'userid = {user[0]}'):  # Удаляем прошлую анкету если она имеется
-            ID = await DBfunc.SELECT('id', 'friend', f'userid = {user[0]}')
-            ID = ID[0][0]
-            await DBfunc.DELETE('friend', f'{ID}')
+            await DELLfriend(user[0])
         dt2 = dt[2].replace('"', '')
         dt1 = dt[1].replace('"', '')
         await DBfunc.INSERT('friend', 'userid, Filter, AboutMe, gender, name',
@@ -174,9 +173,7 @@ async def Okk(message: Message, state: FSMContext):
         for i in dt[3::]:
             ph += f'{i}|'
         if await DBfunc.IF('friend', 'id', f'userid = {user[0]}'):  # Удаляем прошлую анкету если она имеется
-            ID = await DBfunc.SELECT('id', 'friend', f'userid = {user[0]}')
-            ID = ID[0][0]
-            await DBfunc.DELETE('friend', f'{ID}')
+            await DELLfriend(user[0])
         await DBfunc.INSERT('friend', 'userid, Filter, AboutMe, photos, gender, name',
                             f'{user[0]},"{dt[0]}","{dt[2]}","{ph}","{user[1]}","{dt[1]}"')
         data.pop(message.from_user.id)
@@ -210,9 +207,7 @@ async def Okk(message: Message, state: FSMContext):
     if not (await DBfunc.IF('friend', 'id', f'userid = {user[0]}')):
         await message.answer('У вас нет анкеты')
     else:
-        ID = await DBfunc.SELECT('id', 'friend', f'userid = {user[0]}')
-        ID = ID[0][0]
-        await DBfunc.DELETE('friend', f'{ID}')
+        await DELLfriend(user[0])
         await message.answer('Ваша анкета удалена')
 
 
