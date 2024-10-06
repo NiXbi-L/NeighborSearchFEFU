@@ -127,7 +127,7 @@ async def UnLike(message: Message, state: FSMContext):
             await Userlink(message, data[message.from_user.id][0][0][1])
     else:
         await state.set_state(Naighbor.Naighbor)
-        
+
         await message.answer('Возвращаю в меню', reply_markup=await mainKeyboard())
         data.pop(message.from_user.id)
 

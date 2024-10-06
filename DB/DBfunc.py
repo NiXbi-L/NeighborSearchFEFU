@@ -1,5 +1,4 @@
 import pymysql
-import asyncio
 from config import DBconf
 
 

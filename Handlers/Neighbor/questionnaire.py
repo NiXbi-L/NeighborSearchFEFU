@@ -8,12 +8,31 @@ from Handlers.SerchBS.builders import Photos_INLINE, Ok, mainKeyboard, Buildings
 from Handlers.SerchBS.States import add, Naighbor
 from Handlers.General_Func import DELLquestionnaire
 from config import BotSetings
+from Moderation.moderation import Image_Moderation
+from Handlers.Neighbor.GPTmoderation import chek
+import os
 
 router = Router()  # Создаем объект роутер
 bot = Bot(token=BotSetings.token)  # Создаем объект бот
 
 data = {}
 
+async def download_photo_by_file_id(user_id, file_id, save_folder='Moderation/Photos'):
+
+    file_info = await bot.get_file(file_id)
+    file_path = file_info.file_path
+
+    # Создаем папку пользователя, если она не существует
+    user_folder = os.path.join(save_folder, str(user_id))
+    if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
+
+    # Формируем путь для сохранения фотографии
+    save_path = os.path.join(user_folder, f'{file_id}.jpg')
+
+    # Скачиваем файл
+    await bot.download_file(file_path, save_path)
+    print(f"Фотография сохранена по пути: {save_path}")
 
 @router.callback_query(add.name, lambda call: call.data == 'Und')
 async def UND(call: CallbackQuery, state: FSMContext):
@@ -85,32 +104,54 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
             await state.set_state(add.buildings)
             data.pop(call.from_user.id)
         else:
-            await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
-            await bot.delete_message(chat_id=call.from_user.id,
-                                     message_id=call.message.message_id)  # Удаляем это сообщение
-            try:
-                media = []
-                photos = data[call.from_user.id][3::]
-                if len(f'{dt1}\n{dt2}') > 1023:
-                    for i in range(len(photos)):
-                        media.append(InputMediaPhoto(
-                            media=photos[i]))
-                    await bot.send_media_group(chat_id=call.from_user.id, media=media)
-                    await call.message.answer(f'{dt1}\n{dt2}')
-                else:
-                    for i in range(len(photos)):
-                        if i == 0:
-                            media.append(InputMediaPhoto(
-                                media=photos[i],
-                                caption=f'{dt1}\n{dt2}'))
-                        else:
+            await call.message.answer('Анкета проверяется ИИ. Ожидайте.')
+            TF = await chek(f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}')
+            photos = data[call.from_user.id][3::]
+            for i in photos:
+                await download_photo_by_file_id(call.from_user.id, i)
+            IM = False
+            for i in photos:
+                IM = await Image_Moderation(f'Moderation/Photos/{call.from_user.id}/{i}.jpg')
+            print(IM)
+
+            if TF[0] or IM:
+                if TF[0] and IM:
+                    await call.message.answer(f'Ваша анкета отклонена:\n{TF[1]}\n\nтак же содержит NSFW контент')
+                elif IM:
+                    await call.message.answer(f'Ваша анкета содержит NSFW контент')
+                elif TF[0]:
+                    await call.message.answer(f'Ваша анкета отклонена:\n{TF[1]}')
+                await call.message.answer('Заполните анкету заново.')
+                await call.message.answer('Выбери корпус в который заселяешься', reply_markup=await Buildings_INLINE())
+                await state.set_state(add.buildings)
+                data.pop(call.from_user.id)
+            else:
+                await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+                await bot.delete_message(chat_id=call.from_user.id,
+                                         message_id=call.message.message_id)  # Удаляем это сообщение
+                try:
+                    media = []
+                    photos = data[call.from_user.id][3::]
+                    if len(f'{dt1}\n{dt2}') > 1023:
+                        for i in range(len(photos)):
                             media.append(InputMediaPhoto(
                                 media=photos[i]))
-                    await bot.send_media_group(chat_id=call.from_user.id, media=media)
-                await state.set_state(add.Okk)
-            except:
-                await call.message.answer(f'{dt1}\n{dt2}')
-                await state.set_state(add.Okk)
+                        await bot.send_media_group(chat_id=call.from_user.id, media=media)
+                        await call.message.answer(f'{dt1}\n{dt2}')
+                    else:
+                        for i in range(len(photos)):
+                            if i == 0:
+                                media.append(InputMediaPhoto(
+                                    media=photos[i],
+                                    caption=f'{dt1}\n{dt2}'))
+                            else:
+                                media.append(InputMediaPhoto(
+                                    media=photos[i]))
+                        await bot.send_media_group(chat_id=call.from_user.id, media=media)
+                    await state.set_state(add.Okk)
+                except:
+                    await call.message.answer(f'{dt1}\n{dt2}')
+                    await state.set_state(add.Okk)
 
 
 @router.callback_query(add.photos, lambda query: query.data == 'NoPhoto')
@@ -125,9 +166,18 @@ async def add_photos(call: CallbackQuery, state: FSMContext):
         await state.set_state(add.buildings)
         data.pop(call.from_user.id)
     else:
-        await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
-        await call.message.answer(f'{dt1}\n{dt2}')
-        await state.set_state(add.Okk)
+        await call.message.answer('Анкета проверяется ИИ. Ожидайте.')
+        TF = await chek(f'{data[call.from_user.id][1]}\n{data[call.from_user.id][2]}')
+        if TF[0]:
+            await call.message.answer(f'Ваша анкета отклонена:\n{TF[1]}')
+            await call.message.answer('Заполните анкету заново.')
+            await call.message.answer('Выбери корпус в который заселяешься', reply_markup=await Buildings_INLINE())
+            await state.set_state(add.buildings)
+            data.pop(call.from_user.id)
+        else:
+            await call.message.answer('Вот так выглядит твоя анкета:', reply_markup=await Ok())
+            await call.message.answer(f'{dt1}\n{dt2}')
+            await state.set_state(add.Okk)
 
 
 @router.message(add.Okk, lambda message: message.text == 'Круто, оставляем!')

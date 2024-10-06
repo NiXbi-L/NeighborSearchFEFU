@@ -38,9 +38,9 @@ async def mailigMethod(users, usid):  # функция рассылки сооб
                             media=photos[j]))
                 await bot.send_media_group(chat_id=tgid, media=media)
                 Sended += 1
-                await DELL(i[0])
         except:
             Blocked += 1
+            await DELL(i[0])
 
     await bot.send_message(chat_id=usid, text=f'Отчет по рассылке:\n'
                                               f'Дошло: {Sended}\n'
